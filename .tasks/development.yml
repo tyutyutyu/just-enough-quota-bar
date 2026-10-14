@@ -1,0 +1,15 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  lint-config:
+    preconditions:
+      - sh: command -v python3
+        msg: "python3 is required"
+    cmds:
+      - python3 -m json.tool renovate.json > /dev/null
+
+  verify:
+    cmds:
+      - task: lint-config
