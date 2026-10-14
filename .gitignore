@@ -1,0 +1,7 @@
+# >>> github-manager: gitignore-baseline
+.DS_Store
+.idea/
+.env
+.claude/
+!.claude/skills/
+# <<< github-manager: gitignore-baseline
