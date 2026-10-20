@@ -1,7 +1,8 @@
 # >>> github-manager: gitignore-baseline
-.DS_Store
-.idea/
+# dotenv environment variable files
 .env
+.env.*
+!.env.example
 
 # Claude Code - local configuration
 .claude/settings.local.json
