@@ -5,3 +5,10 @@
 .claude/
 !.claude/skills/
 # <<< github-manager: gitignore-baseline
+
+node_modules/
+dist/
+out/
+coverage/
+.vscode-test/
+*.vsix

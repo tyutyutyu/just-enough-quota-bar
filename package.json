@@ -1,0 +1,72 @@
+{
+  "name": "just-enough-quota-bar",
+  "displayName": "Just Enough Quota Bar",
+  "description": "Claude Code and Codex subscription quota windows in the VS Code status bar. Nothing more.",
+  "version": "0.0.1",
+  "publisher": "tyutyutyu",
+  "license": "MIT",
+  "private": false,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tyutyutyu/just-enough-quota-bar.git"
+  },
+  "bugs": {
+    "url": "https://github.com/tyutyutyu/just-enough-quota-bar/issues"
+  },
+  "homepage": "https://github.com/tyutyutyu/just-enough-quota-bar#readme",
+  "engines": {
+    "vscode": "^1.100.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "claude",
+    "codex",
+    "quota",
+    "status bar"
+  ],
+  "extensionKind": [
+    "ui"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "jeqb.refresh",
+        "title": "Refresh quota",
+        "category": "Just Enough Quota Bar"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run build:production",
+    "build": "node esbuild.mjs",
+    "build:production": "node esbuild.mjs --production",
+    "typecheck": "tsc --noEmit -p tsconfig.json",
+    "lint": "eslint .",
+    "test": "vitest run --coverage",
+    "compile:test": "tsc -p tsconfig.integration.json",
+    "test:integration": "npm run compile:test && node out/test/integration/runTest.js",
+    "package": "vsce package --no-dependencies --out just-enough-quota-bar.vsix"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.0",
+    "@types/mocha": "^10.0.10",
+    "@types/node": "^24.0.0",
+    "@types/vscode": "~1.100.0",
+    "@vitest/coverage-v8": "^5.0.4",
+    "@vscode/test-electron": "^3.1.0",
+    "@vscode/vsce": "^4.0.0",
+    "esbuild": "^0.28.2",
+    "eslint": "^10.12.0",
+    "mocha": "^12.0.3",
+    "ovsx": "^1.2.0",
+    "typescript": "~6.0.0",
+    "typescript-eslint": "^8.71.2",
+    "vitest": "^5.0.4"
+  }
+}

@@ -4,12 +4,48 @@ version: "3"
 
 tasks:
   lint-config:
-    preconditions:
-      - sh: command -v python3
-        msg: "python3 is required"
     cmds:
-      - python3 -m json.tool renovate.json > /dev/null
+      - node -e "JSON.parse(require('fs').readFileSync('renovate.json', 'utf8'))"
+
+  install:
+    cmds:
+      - npm ci
+
+  lint:
+    cmds:
+      - npm run lint
+
+  typecheck:
+    cmds:
+      - npm run typecheck
+
+  test:
+    cmds:
+      - npm test
+
+  build:
+    cmds:
+      - npm run build:production
+
+  test-integration:
+    deps:
+      - build
+    cmds:
+      - cmd: xvfb-run -a npm run test:integration
+        platforms: [linux]
+      - cmd: npm run test:integration
+        platforms: [darwin, windows]
+
+  package:
+    cmds:
+      - npm run package
 
   verify:
     cmds:
+      - task: install
       - task: lint-config
+      - task: lint
+      - task: typecheck
+      - task: test
+      - task: test-integration
+      - task: package
