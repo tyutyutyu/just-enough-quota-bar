@@ -12,3 +12,8 @@ tasks:
     cmds:
       - cmd: task --list
         ignore_error: true
+
+  verify:
+    desc: Run lint, type check, unit and integration tests, and the package check
+    cmds:
+      - task: dev:verify
