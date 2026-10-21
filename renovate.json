@@ -2,5 +2,18 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>tyutyutyu/github-manager//renovate/default"
+  ],
+  "packageRules": [
+    {
+      "description": "engines.vscode is the minimum supported VS Code version: keep it a range, never pin it",
+      "matchDepTypes": ["engines"],
+      "matchDepNames": ["vscode"],
+      "rangeStrategy": "replace"
+    },
+    {
+      "description": "@types/vscode must not be newer than the engines.vscode minimum, so raise them together by hand",
+      "matchDepNames": ["@types/vscode"],
+      "enabled": false
+    }
   ]
 }
