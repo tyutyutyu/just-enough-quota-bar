@@ -40,7 +40,232 @@
         "title": "Refresh quota",
         "category": "Just Enough Quota Bar"
       }
-    ]
+    ],
+    "configuration": {
+      "title": "Just Enough Quota Bar",
+      "properties": {
+        "jeqb.thresholds": {
+          "type": "object",
+          "default": {
+            "5h.pct": [
+              {
+                "gte": 70,
+                "color": "charts.yellow"
+              },
+              {
+                "gte": 90,
+                "color": "errorForeground",
+                "background": "error"
+              }
+            ],
+            "week.pct": [
+              {
+                "gte": 70,
+                "color": "charts.yellow"
+              },
+              {
+                "gte": 90,
+                "color": "errorForeground"
+              }
+            ],
+            "banked.expires": [
+              {
+                "lte": "3d",
+                "color": "charts.orange"
+              },
+              {
+                "lte": "1d",
+                "color": "errorForeground"
+              }
+            ]
+          },
+          "markdownDescription": "Colors by variable name. Each value is a list of steps evaluated in order; the last matching step wins. Time variables compare the remaining duration.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "color"
+              ],
+              "properties": {
+                "gte": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is greater than or equal to this number or duration such as \"3d\"."
+                },
+                "gt": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is greater than this number or duration."
+                },
+                "lte": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is less than or equal to this number or duration such as \"90m\"."
+                },
+                "lt": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is less than this number or duration."
+                },
+                "eq": {
+                  "type": "string",
+                  "description": "Matches when a text variable equals this text."
+                },
+                "color": {
+                  "type": "string",
+                  "description": "Theme color ID such as charts.red, or #rrggbb."
+                },
+                "background": {
+                  "type": "string",
+                  "enum": [
+                    "warning",
+                    "error"
+                  ],
+                  "description": "Status bar background; VS Code only allows warning and error."
+                }
+              }
+            }
+          }
+        },
+        "jeqb.claude.thresholds": {
+          "type": "object",
+          "default": {},
+          "markdownDescription": "Claude thresholds; each key replaces the same key of `#jeqb.thresholds#`.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "color"
+              ],
+              "properties": {
+                "gte": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is greater than or equal to this number or duration such as \"3d\"."
+                },
+                "gt": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is greater than this number or duration."
+                },
+                "lte": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is less than or equal to this number or duration such as \"90m\"."
+                },
+                "lt": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is less than this number or duration."
+                },
+                "eq": {
+                  "type": "string",
+                  "description": "Matches when a text variable equals this text."
+                },
+                "color": {
+                  "type": "string",
+                  "description": "Theme color ID such as charts.red, or #rrggbb."
+                },
+                "background": {
+                  "type": "string",
+                  "enum": [
+                    "warning",
+                    "error"
+                  ],
+                  "description": "Status bar background; VS Code only allows warning and error."
+                }
+              }
+            }
+          }
+        },
+        "jeqb.codex.thresholds": {
+          "type": "object",
+          "default": {},
+          "markdownDescription": "Codex thresholds; each key replaces the same key of `#jeqb.thresholds#`.",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "color"
+              ],
+              "properties": {
+                "gte": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is greater than or equal to this number or duration such as \"3d\"."
+                },
+                "gt": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is greater than this number or duration."
+                },
+                "lte": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is less than or equal to this number or duration such as \"90m\"."
+                },
+                "lt": {
+                  "type": [
+                    "number",
+                    "string"
+                  ],
+                  "description": "Matches when the value is less than this number or duration."
+                },
+                "eq": {
+                  "type": "string",
+                  "description": "Matches when a text variable equals this text."
+                },
+                "color": {
+                  "type": "string",
+                  "description": "Theme color ID such as charts.red, or #rrggbb."
+                },
+                "background": {
+                  "type": "string",
+                  "enum": [
+                    "warning",
+                    "error"
+                  ],
+                  "description": "Status bar background; VS Code only allows warning and error."
+                }
+              }
+            }
+          }
+        },
+        "jeqb.staleColor": {
+          "type": "string",
+          "default": "disabledForeground",
+          "markdownDescription": "Color of stale data, above every threshold. Theme color ID or `#rrggbb`."
+        }
+      }
+    }
   },
   "scripts": {
     "vscode:prepublish": "npm run build:production",
