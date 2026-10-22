@@ -33,17 +33,17 @@ function validTime(value: number | null | undefined): number | null {
   return time !== null && Math.abs(time) <= MAX_TIME_MS ? time : null;
 }
 
-function remainingPct(usedPct: number | null | undefined): number | null {
-  const used = finite(usedPct);
+function remainingPct(usedPercent: number | null | undefined): number | null {
+  const used = finite(usedPercent);
   return used === null ? null : Math.min(PERCENT_MAX, Math.max(0, PERCENT_MAX - used));
 }
 
 export const VARIABLES = {
-  "5h.pct": { kind: "number", resolve: (s) => finite(s.fiveHour?.usedPct) },
-  "5h.left": { kind: "number", resolve: (s) => remainingPct(s.fiveHour?.usedPct) },
+  "5h.pct": { kind: "number", resolve: (s) => finite(s.fiveHour?.usedPercent) },
+  "5h.left": { kind: "number", resolve: (s) => remainingPct(s.fiveHour?.usedPercent) },
   "5h.reset": { kind: "time", resolve: (s) => validTime(s.fiveHour?.resetsAt) },
-  "week.pct": { kind: "number", resolve: (s) => finite(s.week?.usedPct) },
-  "week.left": { kind: "number", resolve: (s) => remainingPct(s.week?.usedPct) },
+  "week.pct": { kind: "number", resolve: (s) => finite(s.week?.usedPercent) },
+  "week.left": { kind: "number", resolve: (s) => remainingPct(s.week?.usedPercent) },
   "week.reset": { kind: "time", resolve: (s) => validTime(s.week?.resetsAt) },
   "banked.count": { kind: "number", resolve: (s) => finite(s.banked?.count) },
   "banked.expires": { kind: "time", resolve: (s) => validTime(s.banked?.nextExpiresAt) },

@@ -27,8 +27,8 @@ function snapshot(overrides: Partial<QuotaSnapshot> = {}): QuotaSnapshot {
   return { name: "Claude", ...overrides };
 }
 
-const used = (usedPct: number | null): QuotaSnapshot =>
-  snapshot({ fiveHour: { usedPct, resetsAt: null } });
+const used = (usedPercent: number | null): QuotaSnapshot =>
+  snapshot({ fiveHour: { usedPercent, resetsAt: null } });
 
 describe("colorFor", () => {
   it("gives no color below every step", () => {
@@ -58,7 +58,7 @@ describe("colorFor", () => {
 
   it("has no color for a variable without steps", () => {
     expect(
-      colorFor("week.pct", snapshot({ week: { usedPct: 99, resetsAt: null } }), new Map(), FRESH),
+      colorFor("week.pct", snapshot({ week: { usedPercent: 99, resetsAt: null } }), new Map(), FRESH),
     ).toBeNull();
   });
 
@@ -68,7 +68,7 @@ describe("colorFor", () => {
   });
 
   it("honors gt and lt as strict comparisons", () => {
-    const left = (usedPct: number) => snapshot({ week: { usedPct, resetsAt: null } });
+    const left = (usedPercent: number) => snapshot({ week: { usedPercent, resetsAt: null } });
     expect(colorFor("week.left", left(90), THRESHOLDS, FRESH)).toBeNull();
     expect(colorFor("week.left", left(90.5), THRESHOLDS, FRESH)).toEqual({ color: "charts.red" });
     expect(
