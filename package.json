@@ -44,6 +44,50 @@
     "configuration": {
       "title": "Just Enough Quota Bar",
       "properties": {
+        "jeqb.alignment": {
+          "type": "string",
+          "enum": [
+            "left",
+            "right"
+          ],
+          "default": "right",
+          "markdownDescription": "Side of the status bar the quota items appear on."
+        },
+        "jeqb.missingValue": {
+          "type": "string",
+          "default": "–",
+          "markdownDescription": "Text shown instead of a variable whose value is not available."
+        },
+        "jeqb.claude.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show the Claude quota in the status bar."
+        },
+        "jeqb.claude.format": {
+          "type": "string",
+          "default": "C {5h.pct}% {5h.reset:rel} · W {week.pct}%",
+          "markdownDescription": "Format of the Claude status bar text. Python-style: `{5h.pct}`, `{week.reset:%a %H:%M}`, `{{` and `}}` for literal braces; `$(codicon)` icons are kept. Variables: `5h.pct`, `5h.left`, `5h.reset`, `week.pct`, `week.left`, `week.reset`, `banked.count`, `banked.expires`, `announced.next`, `announced.kind`, `announced.last`, `announced.p24`, `announced.p48`, `name`. Each variable with a threshold color becomes its own status bar item."
+        },
+        "jeqb.claude.priority": {
+          "type": "integer",
+          "default": 200,
+          "markdownDescription": "Priority of the first Claude item; every further item of the format gets one less, so the order of the format is kept. A higher priority is placed further left."
+        },
+        "jeqb.codex.enabled": {
+          "type": "boolean",
+          "default": true,
+          "markdownDescription": "Show the Codex quota in the status bar."
+        },
+        "jeqb.codex.format": {
+          "type": "string",
+          "default": "X {5h.pct}% {5h.reset:rel} · W {week.pct}%",
+          "markdownDescription": "Format of the Codex status bar text. Python-style: `{5h.pct}`, `{week.reset:%a %H:%M}`, `{{` and `}}` for literal braces; `$(codicon)` icons are kept. Variables: `5h.pct`, `5h.left`, `5h.reset`, `week.pct`, `week.left`, `week.reset`, `banked.count`, `banked.expires`, `announced.next`, `announced.kind`, `announced.last`, `announced.p24`, `announced.p48`, `name`. Each variable with a threshold color becomes its own status bar item."
+        },
+        "jeqb.codex.priority": {
+          "type": "integer",
+          "default": 100,
+          "markdownDescription": "Priority of the first Codex item; every further item of the format gets one less, so the order of the format is kept. A higher priority is placed further left."
+        },
         "jeqb.thresholds": {
           "type": "object",
           "default": {
