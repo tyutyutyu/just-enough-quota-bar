@@ -6,7 +6,7 @@
  */
 export interface QuotaWindow {
   /** Used share of the window, 0-100. */
-  readonly usedPct: number | null;
+  readonly usedPercent: number | null;
   readonly resetsAt: number | null;
 }
 
@@ -36,4 +36,10 @@ export interface QuotaSnapshot {
   readonly week?: QuotaWindow;
   readonly banked?: BankedResets;
   readonly announced?: AnnouncedReset;
+  /** When the source last answered successfully. */
+  readonly fetchedAt?: number | null;
+  /** The last fetch failed or the data is otherwise out of date. */
+  readonly stale?: boolean;
+  /** Non-sensitive error code of the last failed fetch, e.g. `upstream_429`. */
+  readonly error?: string | null;
 }

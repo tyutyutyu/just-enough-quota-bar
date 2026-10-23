@@ -12,8 +12,8 @@ const MISSING = "–";
 
 const FULL: QuotaSnapshot = {
   name: "Claude",
-  fiveHour: { usedPct: 42.4, resetsAt: NOW + HOUR + 12 * MINUTE },
-  week: { usedPct: 67, resetsAt: NOW + 2 * DAY + 3 * HOUR },
+  fiveHour: { usedPercent: 42.4, resetsAt: NOW + HOUR + 12 * MINUTE },
+  week: { usedPercent: 67, resetsAt: NOW + 2 * DAY + 3 * HOUR },
   banked: { count: 2, nextExpiresAt: NOW + 5 * DAY },
   announced: { next: NOW + 20 * HOUR, kind: "announced", last: NOW - 3 * DAY, p24: 12.5, p48: 60 },
 };
@@ -120,20 +120,20 @@ describe("render variables", () => {
 
 describe("render edge cases", () => {
   it("renders 0% used as 0 used and 100 left", () => {
-    const snapshot = { ...FULL, fiveHour: { usedPct: 0, resetsAt: NOW + HOUR } };
+    const snapshot = { ...FULL, fiveHour: { usedPercent: 0, resetsAt: NOW + HOUR } };
 
     expect(texts("{5h.pct}/{5h.left}", snapshot)).toEqual(["0", "/", "100"]);
   });
 
   it("renders 100% used as 100 used and 0 left", () => {
-    const snapshot = { ...FULL, fiveHour: { usedPct: 100, resetsAt: NOW + HOUR } };
+    const snapshot = { ...FULL, fiveHour: { usedPercent: 100, resetsAt: NOW + HOUR } };
 
     expect(texts("{5h.pct}/{5h.left}", snapshot)).toEqual(["100", "/", "0"]);
   });
 
   it("clamps the remaining share of an out-of-range percentage", () => {
-    const over = { ...FULL, week: { usedPct: 104, resetsAt: null } };
-    const under = { ...FULL, week: { usedPct: -3, resetsAt: null } };
+    const over = { ...FULL, week: { usedPercent: 104, resetsAt: null } };
+    const under = { ...FULL, week: { usedPercent: -3, resetsAt: null } };
 
     expect(texts("{week.left}", over)).toEqual(["0"]);
     expect(texts("{week.left}", under)).toEqual(["100"]);
@@ -141,14 +141,14 @@ describe("render edge cases", () => {
 
   it("renders a reset in the past as 0m and keeps the raw timestamp", () => {
     const past = NOW - 2 * HOUR;
-    const snapshot = { ...FULL, fiveHour: { usedPct: 10, resetsAt: past } };
+    const snapshot = { ...FULL, fiveHour: { usedPercent: 10, resetsAt: past } };
 
     expect(segments("{5h.reset}", snapshot)).toMatchObject([{ text: "0m", raw: past }]);
   });
 
   it("renders a reset in the past in strftime and iso styles", () => {
     const past = Date.UTC(2020, 0, 2, 3, 4);
-    const snapshot = { ...FULL, fiveHour: { usedPct: 10, resetsAt: past } };
+    const snapshot = { ...FULL, fiveHour: { usedPercent: 10, resetsAt: past } };
     const originalTz = process.env.TZ;
     process.env.TZ = "Europe/Budapest";
 
@@ -182,7 +182,7 @@ describe("render edge cases", () => {
   it("shows missingValue for a null field inside a present block", () => {
     const snapshot: QuotaSnapshot = {
       name: "Codex",
-      fiveHour: { usedPct: 30, resetsAt: null },
+      fiveHour: { usedPercent: 30, resetsAt: null },
       banked: { count: 0, nextExpiresAt: null },
       announced: { next: null, kind: null, last: null, p24: null, p48: null },
     };
@@ -205,8 +205,8 @@ describe("render edge cases", () => {
   it("treats non-finite numbers and unrepresentable times as missing", () => {
     const snapshot: QuotaSnapshot = {
       name: "Claude",
-      fiveHour: { usedPct: Number.NaN, resetsAt: Number.POSITIVE_INFINITY },
-      week: { usedPct: Number.POSITIVE_INFINITY, resetsAt: 9e15 },
+      fiveHour: { usedPercent: Number.NaN, resetsAt: Number.POSITIVE_INFINITY },
+      week: { usedPercent: Number.POSITIVE_INFINITY, resetsAt: 9e15 },
     };
 
     expect(texts("{5h.pct} {5h.left} {5h.reset} {week.pct} {week.reset}", snapshot)).toEqual([
