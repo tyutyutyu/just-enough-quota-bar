@@ -15,12 +15,21 @@ export interface TooltipInput {
 
 const NO_SOURCE = "no source";
 
+/** What the user can do about an error code; the extension never refreshes the token itself. */
+const ERROR_HINTS: Readonly<Record<string, string>> = {
+  auth_expired: "Run Claude Code to refresh the token.",
+};
+
 /** The minimal tooltip: provider and source, last update, stale or error code, attribution. */
 export function buildTooltip(input: TooltipInput): string {
   const lines = [`${input.name} · ${input.sourceLabel ?? NO_SOURCE}`, lastUpdate(input)];
   const status = statusLine(input);
   if (status !== null) {
     lines.push(status);
+  }
+  const hint = input.errorCode === null ? undefined : ERROR_HINTS[input.errorCode];
+  if (hint !== undefined) {
+    lines.push(hint);
   }
   if (input.attribution !== null) {
     lines.push(input.attribution);

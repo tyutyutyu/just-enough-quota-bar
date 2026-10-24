@@ -46,6 +46,27 @@ describe("buildTooltip", () => {
     expect(text).toBe("Claude · OAuth usage\nLast update: never\nError: auth_missing");
   });
 
+  it("suggests running Claude Code when the token has expired", () => {
+    const text = buildTooltip({
+      ...base,
+      snapshot: { name: "Claude", fetchedAt: NOW - 90 * MINUTE, stale: true },
+      errorCode: "auth_expired",
+    });
+
+    expect(text).toBe(
+      "Claude · OAuth usage\nLast update: 1h30m ago\nStale: auth_expired\nRun Claude Code to refresh the token.",
+    );
+  });
+
+  it("suggests running Claude Code also when there is no data yet", () => {
+    const text = buildTooltip({ ...base, snapshot: null, errorCode: "auth_expired" });
+
+    expect(text.split("\n").slice(-2)).toEqual([
+      "Error: auth_expired",
+      "Run Claude Code to refresh the token.",
+    ]);
+  });
+
   it("ends with the attribution when there is one", () => {
     const text = buildTooltip({ ...base, attribution: "Data: codex-reset.com" });
 
