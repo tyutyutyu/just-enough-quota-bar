@@ -11,3 +11,12 @@ export function qualify(name: string): string {
 }
 
 export const COMMAND_REFRESH = qualify("refresh");
+
+export const PROVIDER_IDS = ["claude", "codex"] as const;
+
+export type ProviderId = (typeof PROVIDER_IDS)[number];
+
+export const PROVIDER_NAMES: Readonly<Record<ProviderId, string>> = {
+  claude: "Claude",
+  codex: "Codex",
+};
