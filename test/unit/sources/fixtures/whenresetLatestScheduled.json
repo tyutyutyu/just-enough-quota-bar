@@ -1,0 +1,114 @@
+{
+  "_fixture": "SYNTHETIC: the live scheduled field was null on every check (2026-10-12 to 2026-10-25). Only certainty is documented; the time fields ts (ISO UTC) and date (YYYY-MM-DD) are ASSUMED, as marked by _assumed on each entry.",
+  "schema": "whenreset/v1",
+  "generated_at": "2026-10-25T11:11:12Z",
+  "source": "https://whenreset.app/api/",
+  "products": {
+    "codex": {
+      "name": "Codex",
+      "vendor": "OpenAI",
+      "latest_event": {
+        "id": "2113492187770175603",
+        "date": "2026-10-23",
+        "ts": "2026-10-23T04:46:19Z",
+        "type": "reset",
+        "kind": "regular",
+        "scope": "all",
+        "source": "thsottiaux",
+        "url": "https://x.com/thsottiaux/status/2113492187770175603",
+        "summary": "Day 18/ Decisions API is GA, OpenResponses joined the Linux Foundation, we shipped some performance improvements and Uber is going all-in on codex &amp; work. But yes… that’s a reset!",
+        "summary_zh": "Codex 第 18 天为所有用户重置使用额度，同期 Decisions API 正式 GA",
+        "kind_label": "额度重置",
+        "scope_label": "全部用户",
+        "page": "https://whenreset.app/codex/2026-10-23/"
+      },
+      "stats": {
+        "total": 55,
+        "last_date": "2026-10-23",
+        "last30d": 7,
+        "median_gap": 3,
+        "max_gap": 68,
+        "last_regular_date": "2026-10-23",
+        "last_banked_date": "2026-10-07",
+        "banked_count": 8
+      },
+      "scheduled": [
+        {
+          "_assumed": [
+            "ts"
+          ],
+          "certainty": "hinted",
+          "ts": "2026-10-26T04:00:00Z"
+        },
+        {
+          "_assumed": [
+            "date"
+          ],
+          "certainty": "announced",
+          "date": "2026-10-29"
+        },
+        {
+          "_assumed": [
+            "ts",
+            "date"
+          ],
+          "certainty": "announced",
+          "ts": "2026-10-27T16:00:00Z",
+          "date": "2026-10-27"
+        },
+        {
+          "_assumed": [
+            "ts"
+          ],
+          "ts": "2026-10-26T00:00:00Z"
+        },
+        {
+          "_assumed": [
+            "ts"
+          ],
+          "certainty": "announced",
+          "ts": "next week"
+        },
+        "unrecognized entry"
+      ],
+      "next_estimate": "2026-10-26"
+    },
+    "claude": {
+      "name": "Claude",
+      "vendor": "Anthropic",
+      "latest_event": {
+        "id": "2113007239476977744",
+        "date": "2026-10-21",
+        "ts": "2026-10-21T20:39:18Z",
+        "type": "reset",
+        "kind": "regular",
+        "scope": "all",
+        "source": "lydiahallie",
+        "url": "https://x.com/lydiahallie/status/2113007239476977744",
+        "summary": "Quick reminder that the free limit reset from last month expires tomorrow at 9am PT! 🙏 If you haven't used yours yet, it's still waiting for you in Settings &gt; Usage (or https://t.co/qXOsTIAjRH) https://t.co/XxdYce2x4v",
+        "summary_zh": "上月发放的免费额度重置将于明天太平洋时间上午 9 点到期，未使用的用户可在 Settings > Usage 中使用",
+        "kind_label": "额度重置",
+        "scope_label": "全部用户",
+        "page": "https://whenreset.app/claude/2026-10-21/"
+      },
+      "stats": {
+        "total": 14,
+        "last_date": "2026-10-21",
+        "last30d": 1,
+        "median_gap": 8,
+        "max_gap": 47,
+        "last_regular_date": "2026-10-21",
+        "last_banked_date": "2026-09-22",
+        "banked_count": 1
+      },
+      "scheduled": {
+        "_assumed": [
+          "date"
+        ],
+        "certainty": "announced",
+        "date": "2026-10-28"
+      },
+      "next_estimate": "2026-10-29"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "updated_at": "2026-10-25T21:38:45.436Z",
+  "data_as_of": "2026-10-25T11:11:12Z",
+  "product": "claude",
+  "target": "global hard reset (banked excluded)",
+  "model": "climatology (fraction of historical gaps <= horizon, unwindowed)",
+  "probabilities": {
+    "raw_24h": 0.0769,
+    "raw_48h": 0.0769,
+    "raw_7d": 0.4615
+  },
+  "hours_since_last": 96.99,
+  "sample_n": 13,
+  "method_url": "https://whenreset.app/tools/backtest/",
+  "note": "Experimental estimate from historical intervals; vendors never committed to a reset cadence."
+}

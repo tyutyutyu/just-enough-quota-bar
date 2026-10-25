@@ -2,17 +2,20 @@ import * as vscode from "vscode";
 import { SharedCache } from "./cache/sharedCache";
 import type { Disposable } from "./cache/watcher";
 import { COMMAND_REFRESH, PREFIX, PROVIDER_IDS, type ProviderId } from "./constants";
+import { createAnnouncedSources } from "./sources/announced";
 import { createClaudeSource } from "./sources/claude";
 import { createCodexSource } from "./sources/codexSelect";
 import { QuotaController, type RefreshOutcomes } from "./statusbar/controller";
 import { readSettings } from "./statusbar/settings";
-import type { QuotaSource } from "./statusbar/source";
+import type { AnnouncedSource, QuotaSource } from "./statusbar/source";
 import { VscodeStatusBarSink, type InspectedItem } from "./statusbar/vscodeSink";
 
 /** What `activate` returns: how the quota sources connect, and a view for the integration test. */
 export interface ExtensionApi {
   /** Connects `source` to its provider's status bar group, replacing the previous source. */
   registerSource(source: QuotaSource): Disposable;
+  /** Adds an announced-reset source; it takes over from an earlier one with the same choice. */
+  registerAnnouncedSource(source: AnnouncedSource): Disposable;
   /** Asks for fresh data now, for every provider or just one. */
   refresh(provider?: ProviderId): Promise<RefreshOutcomes>;
   /** The status bar items as they are shown right now. */
@@ -21,6 +24,11 @@ export interface ExtensionApi {
 
 function isProviderId(value: unknown): value is ProviderId {
   return PROVIDER_IDS.some((provider) => provider === value);
+}
+
+function readVersion(context: vscode.ExtensionContext): string | undefined {
+  const version: unknown = context.extension.packageJSON?.version;
+  return typeof version === "string" ? version : undefined;
 }
 
 export async function activate(context: vscode.ExtensionContext): Promise<ExtensionApi> {
@@ -64,10 +72,15 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
         },
       }),
     ),
+    ...createAnnouncedSources({
+      version: readVersion(context),
+      log: (line) => output.appendLine(line),
+    }).map((source) => controller.registerAnnouncedSource(source)),
   );
 
   return {
     registerSource: (source) => controller.registerSource(source),
+    registerAnnouncedSource: (source) => controller.registerAnnouncedSource(source),
     refresh: (provider) => controller.refresh(provider),
     statusBarItems: () => sink.inspect(),
   };

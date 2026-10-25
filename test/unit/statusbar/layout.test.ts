@@ -28,7 +28,7 @@ function input(overrides: Partial<LayoutInput> = {}): LayoutInput {
   return {
     provider: "claude",
     settings: settingsWith(),
-    source: { label: "OAuth usage", announcedAttribution: null },
+    source: { label: "OAuth usage" },
     snapshot: snapshot(75, 20),
     errorCode: null,
     nowMs: NOW,
@@ -120,15 +120,76 @@ describe("layoutProvider", () => {
     expect(items[0]?.tooltip).toContain("Stale");
   });
 
-  it("credits the announced provider only when the format uses an announced variable", () => {
-    const source = { label: "app-server", announcedAttribution: "Data: codex-reset.com" };
-    const plain = layoutProvider(input({ source }));
-    const announced = layoutProvider(
-      input({ source, settings: settingsWith({ "claude.format": "{announced.next:rel}" }) }),
-    );
+  describe("announced provider", () => {
+    const attribution = { text: "Data: whenreset.app", url: "https://whenreset.app/" };
+    const values = { next: NOW + 5 * HOUR, kind: "announced" as const, last: NOW - 48 * HOUR, p24: 12.96, p48: 29.63 };
+    const announcedFormat = settingsWith({
+      "claude.format": "{5h.pct}% ⚡{announced.next:rel} {announced.kind} {announced.p24}%",
+    });
 
-    expect(plain[0]?.tooltip).not.toContain("codex-reset.com");
-    expect(announced[0]?.tooltip.split("\n").at(-1)).toBe("Data: codex-reset.com");
+    it("credits the provider, with its link, only when the format uses an announced variable", () => {
+      const plain = layoutProvider(input({ announced: { attribution, values } }));
+      const shown = layoutProvider(input({ settings: announcedFormat, announced: { attribution, values } }));
+
+      expect(plain.every((item) => item.attribution === null)).toBe(true);
+      expect(shown.every((item) => item.attribution === attribution)).toBe(true);
+    });
+
+    it("shows the announced values next to the quota", () => {
+      const items = layoutProvider(input({ settings: announcedFormat, announced: { attribution, values } }));
+
+      expect(items.map((item) => item.text).join("")).toBe("75% ⚡5h announced 13%");
+    });
+
+    it("leaves only the announced variables missing when the provider has no usable answer", () => {
+      const items = layoutProvider(
+        input({
+          settings: announcedFormat,
+          snapshot: { ...snapshot(75, 20), announced: values },
+          announced: { attribution, values: null },
+        }),
+      );
+
+      expect(items.map((item) => item.text).join("")).toBe("75% ⚡– – –%");
+      expect(items[0]?.attribution).toBe(attribution);
+      expect(items[0]?.tooltip).not.toContain("Stale");
+    });
+
+    describe("estimate", () => {
+      const DAY = 24 * HOUR;
+      const estimated = { ...values, next: null, kind: null, estimate: NOW + 2 * DAY };
+      const withEstimates = (include: boolean) =>
+        settingsWith({
+          "claude.format": "{announced.next:rel} {announced.kind}",
+          "announced.includeEstimates": include,
+        });
+
+      it("is shown only with jeqb.announced.includeEstimates", () => {
+        const off = layoutProvider(input({ settings: withEstimates(false), announced: { attribution, values: estimated } }));
+        const on = layoutProvider(input({ settings: withEstimates(true), announced: { attribution, values: estimated } }));
+
+        expect(off.map((item) => item.text).join("")).toBe("– –");
+        expect(on.map((item) => item.text).join("")).toBe("2d estimate");
+      });
+
+      it("still counts on its own day, and is missing once that day is over", () => {
+        const today = { ...estimated, estimate: NOW - HOUR };
+        const past = { ...estimated, estimate: NOW - DAY };
+
+        const onItsDay = layoutProvider(input({ settings: withEstimates(true), announced: { attribution, values: today } }));
+        const after = layoutProvider(input({ settings: withEstimates(true), announced: { attribution, values: past } }));
+
+        expect(onItsDay.map((item) => item.text).join("")).toBe("0m estimate");
+        expect(after.map((item) => item.text).join("")).toBe("– –");
+      });
+
+      it("never replaces an announced reset", () => {
+        const both = { ...values, estimate: NOW + 2 * DAY };
+        const items = layoutProvider(input({ settings: withEstimates(true), announced: { attribution, values: both } }));
+
+        expect(items.map((item) => item.text).join("")).toBe("5h announced");
+      });
+    });
   });
 
   describe("invalid configuration", () => {

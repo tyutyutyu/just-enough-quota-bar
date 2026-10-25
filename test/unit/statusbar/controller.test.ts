@@ -12,7 +12,7 @@ import {
 } from "../../../src/statusbar/controller";
 import type { ItemSpec } from "../../../src/statusbar/layout";
 import { readSettings, type Settings } from "../../../src/statusbar/settings";
-import type { QuotaSource } from "../../../src/statusbar/source";
+import type { AnnouncedSource, QuotaSource } from "../../../src/statusbar/source";
 import type { QuotaSnapshot } from "../../../src/model";
 
 const START = 1_700_000_000_000;
@@ -319,5 +319,149 @@ describe("QuotaController", () => {
     await starting;
 
     expect(cache.disposed).toBe(true);
+  });
+
+  describe("announced sources", () => {
+    const ANNOUNCED_FORMAT = "C {5h.pct}% ⚡{announced.next:rel} {announced.p24}%";
+    const attribution = { text: "Data: whenreset.app", url: "https://whenreset.app/" };
+
+    const announcedSource = (
+      provider: ProviderId = "claude",
+      sourceId: AnnouncedSource["sourceId"] = "whenreset",
+    ): AnnouncedSource => ({
+      provider,
+      sourceId,
+      attribution,
+      definition: { id: `${provider}-${sourceId.toLowerCase()}`, intervalMs: 30 * MINUTE, timeoutMs: 1000 },
+      minIntervalMs: 5 * MINUTE,
+      fetch: async () => ({ ok: false, error: "unused" }),
+    });
+
+    const announcedSnapshot: QuotaSnapshot = {
+      name: "Claude",
+      announced: { next: START + 3 * 60 * MINUTE, kind: "announced", last: null, p24: 40, p48: 70 },
+      fetchedAt: START,
+    };
+
+    it("fetches nothing while the format uses no announced variable", async () => {
+      await controller.start();
+      controller.registerAnnouncedSource(announcedSource());
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(cache.refreshed).toEqual([]);
+      expect(sink.groups.get("claude")?.[0]?.attribution).toBeNull();
+    });
+
+    it("fetches the selected source with its own cache entry and interval", async () => {
+      values["claude.format"] = ANNOUNCED_FORMAT;
+      values["codex.format"] = "{announced.p24}";
+      values["codex.announcedSource"] = "codexReset";
+      await controller.start();
+      controller.registerAnnouncedSource(announcedSource());
+      controller.registerAnnouncedSource(announcedSource("codex", "whenreset"));
+      controller.registerAnnouncedSource(announcedSource("codex", "codexReset"));
+      await vi.advanceTimersByTimeAsync(0);
+
+      const ids = new Set(cache.refreshed.map((definition) => definition.id));
+      expect([...ids].sort()).toEqual(["claude-whenreset", "codex-codexreset"]);
+      expect(cache.refreshed.every((definition) => definition.intervalMs === 30 * MINUTE)).toBe(true);
+    });
+
+    it("fetches nothing for a provider whose announced source is off", async () => {
+      values["claude.format"] = ANNOUNCED_FORMAT;
+      values["claude.announcedSource"] = "off";
+      await controller.start();
+      controller.registerAnnouncedSource(announcedSource());
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(cache.refreshed).toEqual([]);
+      expect(sink.texts("claude").join("")).toBe("C –% ⚡– –%");
+      expect(sink.groups.get("claude")?.[0]?.attribution).toBeNull();
+    });
+
+    it("refreshes with the minimum interval and keeps the outcome of the quota source", async () => {
+      values["claude.format"] = ANNOUNCED_FORMAT;
+      await controller.start();
+      controller.registerSource(claudeSource());
+      controller.registerAnnouncedSource(announcedSource());
+      await vi.advanceTimersByTimeAsync(0);
+      cache.refreshed.length = 0;
+
+      const outcomes = await controller.refresh("claude");
+
+      expect(outcomes).toEqual({ claude: "fetched" });
+      expect(cache.refreshed).toContainEqual({ id: "claude-whenreset", intervalMs: 5 * MINUTE, timeoutMs: 1000 });
+    });
+
+    it("shows the announced values with the credit of the source", async () => {
+      values["claude.format"] = ANNOUNCED_FORMAT;
+      cache.file = {
+        version: 1,
+        entries: {
+          "claude-test": entryFor("claude-test", claudeSnapshot(80)),
+          "claude-whenreset": entryFor("claude-whenreset", announcedSnapshot),
+        },
+      };
+      await controller.start();
+      controller.registerSource(claudeSource());
+      controller.registerAnnouncedSource(announcedSource());
+
+      expect(sink.texts("claude").join("")).toBe("C 80% ⚡3h 40%");
+      expect(sink.groups.get("claude")?.every((item) => item.attribution === attribution)).toBe(true);
+    });
+
+    it("leaves only the announced variables missing after a failed fetch", async () => {
+      values["claude.format"] = ANNOUNCED_FORMAT;
+      cache.file = {
+        version: 1,
+        entries: {
+          "claude-test": entryFor("claude-test", claudeSnapshot(80)),
+          "claude-whenreset": entryFor(
+            "claude-whenreset",
+            { ...announcedSnapshot, stale: true, error: "upstream_503" },
+            "upstream_503",
+          ),
+        },
+      };
+      await controller.start();
+      controller.registerSource(claudeSource());
+      controller.registerAnnouncedSource(announcedSource());
+
+      expect(sink.texts("claude").join("")).toBe("C 80% ⚡– –%");
+      expect(sink.groups.get("claude")?.[0]?.tooltip).not.toContain("upstream_503");
+      expect(sink.groups.get("claude")?.[0]?.attribution).toBe(attribution);
+    });
+
+    it("stops using a source once its registration is disposed", async () => {
+      values["claude.format"] = ANNOUNCED_FORMAT;
+      await controller.start();
+      const registration = controller.registerAnnouncedSource(announcedSource());
+      expect(sink.groups.get("claude")?.[0]?.attribution).toBe(attribution);
+
+      registration.dispose();
+      registration.dispose();
+
+      expect(sink.groups.get("claude")?.[0]?.attribution).toBeNull();
+    });
+
+    it("uses the newest of two sources with the same choice", async () => {
+      values["claude.format"] = ANNOUNCED_FORMAT;
+      await controller.start();
+      controller.registerAnnouncedSource(announcedSource());
+      const newer = { ...announcedSource(), attribution: { text: "Data: newer", url: "https://newer.example/" } };
+      controller.registerAnnouncedSource(newer);
+
+      expect(sink.groups.get("claude")?.[0]?.attribution).toBe(newer.attribution);
+    });
+
+    it("reports a failing announced fetch instead of throwing", async () => {
+      values["claude.format"] = ANNOUNCED_FORMAT;
+      await controller.start();
+      controller.registerAnnouncedSource(announcedSource());
+      cache.failRefresh = true;
+
+      await expect(controller.refresh()).resolves.toEqual({});
+      expect(errors).toEqual([new Error("refresh failed")]);
+    });
   });
 });

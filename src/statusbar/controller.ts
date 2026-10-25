@@ -2,8 +2,8 @@ import type { CacheEntry, CacheFile } from "../cache/entry";
 import type { Fetcher, RefreshOutcome, SourceDefinition } from "../cache/sharedCache";
 import type { Disposable, WatchOptions } from "../cache/watcher";
 import { PROVIDER_IDS, type ProviderId } from "../constants";
-import { layoutProvider, type ItemSpec } from "./layout";
-import type { QuotaSource } from "./source";
+import { formatUsesAnnounced, layoutProvider, type AnnouncedInput, type ItemSpec } from "./layout";
+import type { AnnouncedSource, QuotaSource } from "./source";
 import type { Settings } from "./settings";
 
 /** Relative times are redrawn this often; the redraw never touches the network. */
@@ -37,6 +37,9 @@ export type RefreshOutcomes = Partial<Record<ProviderId, RefreshOutcome>>;
 
 const EMPTY_FILE: CacheFile = { version: 0, entries: {} };
 
+/** What a fetch needs of a quota or an announced-reset source. */
+type Fetchable = Pick<QuotaSource | AnnouncedSource, "definition" | "minIntervalMs" | "fetch">;
+
 /**
  * Connects the registered quota sources, the shared cache, the settings and
  * the status bar: it redraws on every change and on a 30 second timer, and
@@ -44,6 +47,7 @@ const EMPTY_FILE: CacheFile = { version: 0, entries: {} };
  */
 export class QuotaController {
   private readonly sources = new Map<ProviderId, QuotaSource>();
+  private readonly announcedSources = new Set<AnnouncedSource>();
   private readonly timers: NodeJS.Timeout[] = [];
   private readonly now: () => number;
   private file: CacheFile = EMPTY_FILE;
@@ -80,6 +84,24 @@ export class QuotaController {
       dispose: () => {
         if (this.sources.get(source.provider) === source) {
           this.sources.delete(source.provider);
+          this.render();
+        }
+      },
+    };
+  }
+
+  /**
+   * Adds an announced-reset source. It is fetched and shown only while
+   * `jeqb.<provider>.announcedSource` selects it and the format uses an
+   * `announced.*` variable; of two sources with the same choice, the newer one.
+   */
+  registerAnnouncedSource(source: AnnouncedSource): Disposable {
+    this.announcedSources.add(source);
+    this.render();
+    void this.refreshDue();
+    return {
+      dispose: () => {
+        if (this.announcedSources.delete(source)) {
           this.render();
         }
       },
@@ -131,29 +153,69 @@ export class QuotaController {
 
   private async fetchSources(
     only: ProviderId | undefined,
-    definitionOf: (source: QuotaSource) => SourceDefinition,
+    definitionOf: (source: Fetchable) => SourceDefinition,
   ): Promise<RefreshOutcomes> {
     const settings = this.deps.readSettings();
-    const targets = [...this.sources.values()].filter(
-      (source) =>
-        (only === undefined || source.provider === only) &&
-        settings.providers[source.provider].enabled,
-    );
+    const wanted = (provider: ProviderId): boolean =>
+      (only === undefined || provider === only) && settings.providers[provider].enabled;
+    const quotaTargets = [...this.sources.values()].filter((source) => wanted(source.provider));
+    const announcedTargets = PROVIDER_IDS.filter(wanted).flatMap((provider) => {
+      const source = this.selectedAnnounced(provider, settings);
+      return source === null ? [] : [source];
+    });
     const outcomes: RefreshOutcomes = {};
-    await Promise.all(
-      targets.map(async (source) => {
-        try {
-          outcomes[source.provider] = await this.deps.cache.refresh(
-            definitionOf(source),
-            source.fetch,
-          );
-        } catch (error) {
-          this.deps.onError(error);
+    await Promise.all([
+      ...quotaTargets.map(async (source) => {
+        const outcome = await this.fetchOne(source, definitionOf);
+        if (outcome !== null) {
+          outcomes[source.provider] = outcome;
         }
       }),
-    );
+      ...announcedTargets.map((source) => this.fetchOne(source, definitionOf)),
+    ]);
     await this.reload();
     return outcomes;
+  }
+
+  private async fetchOne(
+    source: Fetchable,
+    definitionOf: (source: Fetchable) => SourceDefinition,
+  ): Promise<RefreshOutcome | null> {
+    try {
+      return await this.deps.cache.refresh(definitionOf(source), source.fetch);
+    } catch (error) {
+      this.deps.onError(error);
+      return null;
+    }
+  }
+
+  /** The announced-reset source the settings select for `provider`, if its format shows one. */
+  private selectedAnnounced(provider: ProviderId, settings: Settings): AnnouncedSource | null {
+    const { announcedSource, format } = settings.providers[provider];
+    if (announcedSource === "off" || !formatUsesAnnounced(format)) {
+      return null;
+    }
+    // The newest registration wins, like a replaced quota source.
+    let selected: AnnouncedSource | null = null;
+    for (const source of this.announcedSources) {
+      if (source.provider === provider && source.sourceId === announcedSource) {
+        selected = source;
+      }
+    }
+    return selected;
+  }
+
+  private announcedInput(provider: ProviderId, settings: Settings): AnnouncedInput | null {
+    const source = this.selectedAnnounced(provider, settings);
+    if (source === null) {
+      return null;
+    }
+    const entry = this.file.entries[source.definition.id];
+    const usable = entry !== undefined && entry.error === null;
+    return {
+      attribution: source.attribution,
+      values: usable ? (entry.snapshot?.announced ?? null) : null,
+    };
   }
 
   private async reload(): Promise<void> {
@@ -177,12 +239,10 @@ export class QuotaController {
     return layoutProvider({
       provider,
       settings,
-      source:
-        source === undefined
-          ? null
-          : { label: source.label, announcedAttribution: source.announcedAttribution ?? null },
+      source: source === undefined ? null : { label: source.label },
       snapshot,
       errorCode: snapshot?.error ?? entry?.error ?? null,
+      announced: this.announcedInput(provider, settings),
       nowMs,
     });
   }

@@ -19,15 +19,41 @@ describe("readSettings", () => {
       alignment: "right",
       missingValue: "–",
       staleColor: "disabledForeground",
+      includeEstimates: false,
       errors: [],
     });
     expect(settings.providers.claude).toMatchObject({
       enabled: true,
       format: DEFAULT_FORMATS.claude,
       priority: DEFAULT_PRIORITIES.claude,
+      announcedSource: "whenreset",
       errors: [],
     });
     expect(settings.providers.codex.priority).toBe(DEFAULT_PRIORITIES.codex);
+    expect(settings.providers.codex.announcedSource).toBe("whenreset");
+  });
+
+  it("reads the announced source of each provider and the estimate switch", () => {
+    const settings = readSettings(
+      readFrom({
+        "claude.announcedSource": "off",
+        "codex.announcedSource": "codexReset",
+        "announced.includeEstimates": true,
+      }),
+    );
+
+    expect(settings.providers.claude.announcedSource).toBe("off");
+    expect(settings.providers.codex.announcedSource).toBe("codexReset");
+    expect(settings.shared.includeEstimates).toBe(true);
+  });
+
+  it("rejects codex-reset for Claude, which it does not cover", () => {
+    const settings = readSettings(readFrom({ "claude.announcedSource": "codexReset" }));
+
+    expect(settings.providers.claude.announcedSource).toBe("whenreset");
+    expect(settings.providers.claude.errors).toEqual([
+      expect.stringContaining("jeqb.claude.announcedSource"),
+    ]);
   });
 
   it("reads configured values", () => {

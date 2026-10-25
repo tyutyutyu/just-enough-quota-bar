@@ -106,6 +106,7 @@ function sanitizeAnnounced(value: unknown): AnnouncedReset | undefined {
     last: finiteOrNull(fields.last),
     p24: finiteOrNull(fields.p24),
     p48: finiteOrNull(fields.p48),
+    estimate: finiteOrNull(fields.estimate),
   };
 }
 
