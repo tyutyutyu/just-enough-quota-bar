@@ -37,6 +37,8 @@ function binaries(...files: string[]): BinaryEnvironment {
 }
 
 const signal = (): AbortSignal => new AbortController().signal;
+/** Pinned, so a Windows host does not route the stop through the fake spawn as `taskkill`. */
+const PLATFORM = "linux";
 
 describe("createCodexAppServerSource", () => {
   it("is the Codex source with a default interval of 2 minutes", () => {
@@ -54,6 +56,7 @@ describe("createCodexAppServerSource", () => {
   it("fetches the snapshot through the app-server", async () => {
     const source = createCodexAppServerSource({
       binaryEnvironment: binaries("/bin/codex"),
+      platform: PLATFORM,
       spawnImpl: fake("ok"),
     });
 
@@ -76,6 +79,7 @@ describe("createCodexAppServerSource", () => {
     const source = createCodexAppServerSource({
       readBinaryPath: () => configured,
       binaryEnvironment: binaries("/opt/one/codex", "/opt/two/codex"),
+      platform: PLATFORM,
       spawnImpl: (command, args, options) => {
         started.push(command);
         return fake("ok")(command, args, options);
@@ -93,6 +97,7 @@ describe("createCodexAppServerSource", () => {
     let started = 0;
     const source = createCodexAppServerSource({
       binaryEnvironment: binaries(),
+      platform: PLATFORM,
       spawnImpl: (...args) => {
         started += 1;
         return fake("ok")(...args);
@@ -106,6 +111,7 @@ describe("createCodexAppServerSource", () => {
   it("passes the failure of the app-server on", async () => {
     const source = createCodexAppServerSource({
       binaryEnvironment: binaries("/bin/codex"),
+      platform: PLATFORM,
       spawnImpl: fake("rpc-error"),
     });
 
@@ -118,6 +124,7 @@ describe("createCodexAppServerSource", () => {
     await writeFile(empty, JSON.stringify({ rateLimits: { primary: null, secondary: null } }));
     const source = createCodexAppServerSource({
       binaryEnvironment: binaries("/bin/codex"),
+      platform: PLATFORM,
       spawnImpl: fake("ok", empty),
     });
 
@@ -130,6 +137,7 @@ describe("createCodexAppServerSource", () => {
   it("times out on a slow app-server when the fetch is aborted", async () => {
     const source = createCodexAppServerSource({
       binaryEnvironment: binaries("/bin/codex"),
+      platform: PLATFORM,
       spawnImpl: fake("slow"),
     });
     const controller = new AbortController();

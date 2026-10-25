@@ -67,8 +67,9 @@ async function expectProcessGone(pidFile: string): Promise<void> {
   expect(isAlive(pid)).toBe(false);
 }
 
+/** The platform is pinned, so a Windows host does not route the stop through the fake spawn as `taskkill`. */
 function query(run: FakeRun, signal: AbortSignal = new AbortController().signal) {
-  return queryRateLimits({ command: "codex", signal, spawnImpl: run.spawnImpl });
+  return queryRateLimits({ command: "codex", signal, spawnImpl: run.spawnImpl, platform: "linux" });
 }
 
 describe("queryRateLimits", () => {
