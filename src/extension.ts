@@ -3,6 +3,7 @@ import { SharedCache } from "./cache/sharedCache";
 import type { Disposable } from "./cache/watcher";
 import { COMMAND_REFRESH, PREFIX, PROVIDER_IDS, type ProviderId } from "./constants";
 import { createClaudeSource } from "./sources/claude";
+import { createCodexAppServerSource } from "./sources/codex";
 import { QuotaController, type RefreshOutcomes } from "./statusbar/controller";
 import { readSettings } from "./statusbar/settings";
 import type { QuotaSource } from "./statusbar/source";
@@ -48,7 +49,14 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
     ),
   );
   await controller.start();
-  context.subscriptions.push(controller.registerSource(createClaudeSource()));
+  context.subscriptions.push(
+    controller.registerSource(createClaudeSource()),
+    controller.registerSource(
+      createCodexAppServerSource({
+        readBinaryPath: () => vscode.workspace.getConfiguration(PREFIX).get<string>("codex.binaryPath"),
+      }),
+    ),
+  );
 
   return {
     registerSource: (source) => controller.registerSource(source),

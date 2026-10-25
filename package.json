@@ -242,6 +242,12 @@
             }
           }
         },
+        "jeqb.codex.binaryPath": {
+          "type": "string",
+          "default": "",
+          "scope": "machine",
+          "markdownDescription": "Path of the `codex` executable used for `codex app-server`. Empty: the first `codex` (on Windows `codex.exe` or `codex.cmd`) on the `PATH`."
+        },
         "jeqb.codex.thresholds": {
           "type": "object",
           "default": {},
