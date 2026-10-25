@@ -10,7 +10,7 @@ if (pidFile) {
 }
 const write = (message) => process.stdout.write(`${JSON.stringify(message)}\n`);
 const result = () => JSON.parse(readFileSync(resultFile, "utf8"));
-const initialized = { userAgent: "fake/0.0.0", codexHome: "/tmp/codex", platformFamily: "unix", platformOs: "linux" };
+const initialized = { userAgent: "fake/0.0.0", codexHome: "/home/fake/.codex", platformFamily: "unix", platformOs: "linux" };
 
 if (mode === "exit-at-start") {
   process.exit(3);
