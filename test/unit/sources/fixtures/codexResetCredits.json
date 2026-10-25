@@ -1,0 +1,8 @@
+{
+  "available_count": 2,
+  "credits": [
+    { "status": "available", "expires_at": "2026-10-30T12:00:00Z" },
+    { "status": "available", "expires_at": "2026-10-28T08:30:00+00:00" },
+    { "status": "redeemed", "expires_at": "2026-10-26T00:00:00Z" }
+  ]
+}

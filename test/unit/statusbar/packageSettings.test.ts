@@ -33,6 +33,8 @@ describe("contributes.configuration", () => {
         "jeqb.codex.enabled",
         "jeqb.codex.format",
         "jeqb.codex.priority",
+        "jeqb.codex.probeIntervalMinutes",
+        "jeqb.codex.source",
         "jeqb.codex.thresholds",
         "jeqb.missingValue",
         "jeqb.staleColor",

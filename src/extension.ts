@@ -3,7 +3,7 @@ import { SharedCache } from "./cache/sharedCache";
 import type { Disposable } from "./cache/watcher";
 import { COMMAND_REFRESH, PREFIX, PROVIDER_IDS, type ProviderId } from "./constants";
 import { createClaudeSource } from "./sources/claude";
-import { createCodexAppServerSource } from "./sources/codex";
+import { createCodexSource } from "./sources/codexSelect";
 import { QuotaController, type RefreshOutcomes } from "./statusbar/controller";
 import { readSettings } from "./statusbar/settings";
 import type { QuotaSource } from "./statusbar/source";
@@ -52,8 +52,16 @@ export async function activate(context: vscode.ExtensionContext): Promise<Extens
   context.subscriptions.push(
     controller.registerSource(createClaudeSource()),
     controller.registerSource(
-      createCodexAppServerSource({
-        readBinaryPath: () => vscode.workspace.getConfiguration(PREFIX).get<string>("codex.binaryPath"),
+      createCodexSource({
+        readSourceMode: () => vscode.workspace.getConfiguration(PREFIX).get("codex.source"),
+        appServer: {
+          readBinaryPath: () =>
+            vscode.workspace.getConfiguration(PREFIX).get<string>("codex.binaryPath"),
+        },
+        probe: {
+          readIntervalMinutes: () =>
+            vscode.workspace.getConfiguration(PREFIX).get("codex.probeIntervalMinutes"),
+        },
       }),
     ),
   );
