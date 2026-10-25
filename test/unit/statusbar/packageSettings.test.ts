@@ -29,6 +29,7 @@ describe("contributes.configuration", () => {
         "jeqb.claude.format",
         "jeqb.claude.priority",
         "jeqb.claude.thresholds",
+        "jeqb.codex.binaryPath",
         "jeqb.codex.enabled",
         "jeqb.codex.format",
         "jeqb.codex.priority",
