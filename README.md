@@ -10,6 +10,18 @@ A VS Code extension that shows your **Claude Code** and **Codex** subscription q
 - Show the redeemable (banked) resets and the next announced global reset.
 - Let you choose the displayed text with a per-provider format string, and colour each variable with its own thresholds.
 
+## Codex source
+
+`jeqb.codex.source` chooses where the Codex quota comes from:
+
+- `auto` (default): `codex app-server` when the `codex` binary is found (`jeqb.codex.binaryPath`, otherwise `PATH`), the probe when it is not. A failing app-server does not switch to the probe.
+- `appServer`: always the official `codex app-server`. It uses no quota.
+- `probe`: always the probe.
+
+**The probe uses a small amount of quota.** It reads the token of `$CODEX_HOME/auth.json` (or `~/.codex/auth.json`), lists the models, sends a minimal streamed `responses` request ("reply ok") and reads the limits from its `x-codex-*` response headers, then asks the reset credits. Because every run counts against your quota, it is only the fallback for a machine without the `codex` binary and runs at most every 10 minutes: `jeqb.codex.probeIntervalMinutes` defaults to 10, and a smaller value is raised to 10. The machine-wide cache keeps several VS Code windows from multiplying the requests.
+
+The probe uses undocumented endpoints on `chatgpt.com`. If their format changes, the extension shows an error code (for example `invalid_quota_headers`) instead of failing. The token is only read, never written, cached or logged.
+
 ## Out of scope
 
 This extension deliberately does **not** provide:

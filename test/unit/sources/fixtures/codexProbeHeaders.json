@@ -1,0 +1,8 @@
+{
+  "x-codex-primary-used-percent": "42.4",
+  "x-codex-primary-reset-after-seconds": "9000",
+  "x-codex-primary-window-minutes": "300",
+  "x-codex-secondary-used-percent": "67",
+  "x-codex-secondary-reset-after-seconds": "590400",
+  "x-codex-secondary-window-minutes": "10080"
+}

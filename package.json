@@ -248,6 +248,27 @@
           "scope": "machine",
           "markdownDescription": "Path of the `codex` executable used for `codex app-server`. Empty: the first `codex` (on Windows `codex.exe` or `codex.cmd`) on the `PATH`."
         },
+        "jeqb.codex.source": {
+          "type": "string",
+          "enum": [
+            "auto",
+            "appServer",
+            "probe"
+          ],
+          "default": "auto",
+          "enumDescriptions": [
+            "Use `codex app-server` when the `codex` binary is found, otherwise the probe.",
+            "Always ask `codex app-server`. It uses no quota, but needs the `codex` binary.",
+            "Always use the probe. It reads `~/.codex/auth.json` and sends a minimal request that uses a small amount of quota."
+          ],
+          "markdownDescription": "Where the Codex quota comes from. `auto`: `codex app-server` when the `codex` binary is found (it uses no quota), otherwise the probe. `probe` asks the undocumented ChatGPT endpoints with the token of `auth.json` (`$CODEX_HOME` or `~/.codex`) and sends a minimal request, which **uses a small amount of quota** on every run; see `#jeqb.codex.probeIntervalMinutes#`."
+        },
+        "jeqb.codex.probeIntervalMinutes": {
+          "type": "integer",
+          "default": 10,
+          "minimum": 10,
+          "markdownDescription": "Minutes between two Codex probe runs. Every run sends a minimal request that **uses a small amount of quota**, so the interval is never shorter than 10 minutes, even if a smaller value is set. Only used when the probe is the Codex source."
+        },
         "jeqb.codex.thresholds": {
           "type": "object",
           "default": {},
