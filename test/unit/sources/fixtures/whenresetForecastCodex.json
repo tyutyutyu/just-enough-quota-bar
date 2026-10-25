@@ -1,0 +1,28 @@
+{
+  "updated_at": "2026-10-25T21:38:46.876Z",
+  "data_as_of": "2026-10-25T11:11:12Z",
+  "product": "codex",
+  "target": "global hard reset (banked excluded)",
+  "model": "climatology (fraction of historical gaps <= horizon, unwindowed)",
+  "probabilities": {
+    "raw_24h": 0.1296,
+    "raw_48h": 0.2963,
+    "raw_7d": 0.7222
+  },
+  "hours_since_last": 64.87,
+  "sample_n": 54,
+  "method_url": "https://whenreset.app/tools/backtest/",
+  "note": "Experimental estimate from historical intervals; vendors never committed to a reset cadence.",
+  "backtest": {
+    "brier_24h": 0.1291,
+    "brier_48h": 0.1964,
+    "climatology_brier_24h": 0.1291,
+    "climatology_brier_48h": 0.1964,
+    "cases": 1230,
+    "cases_24h": 1234,
+    "cases_48h": 1230,
+    "model_24h": "climatology",
+    "model_48h": "climatology",
+    "as_of": "2026-10-25"
+  }
+}

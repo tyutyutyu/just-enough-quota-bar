@@ -13,6 +13,7 @@ const CONFIGURED_KEYS = [
   "claude.format",
   "claude.priority",
   "claude.thresholds",
+  "claude.announcedSource",
 ];
 
 async function waitFor<T>(read: () => T, accept: (value: T) => boolean, what: string): Promise<T> {
@@ -192,5 +193,43 @@ suite("status bar", () => {
 
     assert.ok(fetches > before, "the command must query the source");
     assert.strictEqual(claudeItems().length, 5);
+  });
+
+  test("shows the announced values and links the tracker in the tooltip", async () => {
+    const tracker = api.registerAnnouncedSource({
+      provider: "claude",
+      sourceId: "whenreset",
+      attribution: { text: "Data: test tracker", url: "https://tracker.example/" },
+      definition: { id: "claude-announced-it", intervalMs: 0, timeoutMs: 5000 },
+      minIntervalMs: 0,
+      fetch: async () => ({
+        ok: true,
+        snapshot: {
+          name: "Claude",
+          announced: { next: null, kind: null, last: null, p24: 42, p48: 64 },
+        },
+      }),
+    });
+    try {
+      await set("claude.format", "{5h.pct}% {announced.p24}%");
+      const deadline = Date.now() + WAIT_MS;
+      while (claudeItems().map((item) => item.text).join("") !== "75% 42%") {
+        assert.ok(Date.now() < deadline, "the announced value must be shown");
+        await api.refresh("claude");
+        await new Promise((resolve) => setTimeout(resolve, POLL_MS));
+      }
+
+      const tooltip = claudeItems()[0]?.tooltip ?? "";
+      assert.match(tooltip, /\[Data: test tracker\]\(https:\/\/tracker\.example\/\)$/);
+
+      await set("claude.announcedSource", "off");
+      await waitFor(
+        claudeItems,
+        (items) => items.map((item) => item.text).join("") === "75% –%",
+        "the announced value to be missing",
+      );
+    } finally {
+      tracker.dispose();
+    }
   });
 });

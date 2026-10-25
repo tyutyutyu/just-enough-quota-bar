@@ -1,0 +1,183 @@
+{
+  "mode": "model",
+  "updated_at": "2026-10-25T21:38:01.462Z",
+  "probabilities": {
+    "raw_24h": 0.4448504202576546,
+    "raw_48h": 0.6918089441118973,
+    "rounded_24h": 44,
+    "rounded_48h": 69,
+    "model_24h": 44,
+    "model_48h": 69,
+    "tease_tier": null,
+    "tease_floor_24h": null,
+    "tease_floor_48h": null,
+    "commitment": null,
+    "commitment_floor_percent": null,
+    "signal_percent": null,
+    "range_24h": {
+      "lower": 0.246,
+      "upper": 0.663
+    },
+    "range_48h": {
+      "lower": 0.462,
+      "upper": 0.854
+    }
+  },
+  "signal_score": null,
+  "confidence": "low",
+  "confidence_note": "Experimental: walk-forward backtest has not beaten both baselines yet.",
+  "last_reset_at": "2026-10-25T06:10:01.000Z",
+  "age_days": 0.6,
+  "official_signal": null,
+  "teased_window": null,
+  "time_window": {
+    "start_hour": 4,
+    "end_hour": 7,
+    "label": "4 AM - 7 AM",
+    "timezone": "UTC"
+  },
+  "cadence": {
+    "recent_median_days": 2.4,
+    "recent_sample": 5,
+    "weighted_mean_days": 4.2,
+    "accelerating": true
+  },
+  "tease_signal": null,
+  "tease_card_note": null,
+  "tease_post_age": null,
+  "latest_hint": null,
+  "hint_copy": null,
+  "context": {
+    "window_days": 7,
+    "since": "2026-10-18T21:38:01.462Z",
+    "evidence_ids": [
+      "2113492187770175603",
+      "2113162277688070445",
+      "2112432076767289678"
+    ],
+    "effect": "informational_only",
+    "multiplier": 1,
+    "negative_supported": false,
+    "state": "QUIET",
+    "since_reset": true,
+    "reset_at": "2026-10-25T06:10:01.000Z",
+    "primary_post": null
+  },
+  "context_copy": {
+    "en": "Tibo, last 7 days: no new hint since the reset on Oct 25. The number above is history only.",
+    "zh": "Tibo 近 7 天：10 月 25 日重置之后没有新线索。上面的概率只来自历史。",
+    "ja": "Tibo 直近 7 日：10月25日のリセット後、新しい手がかりはありません。上の確率は履歴のみに基づきます。",
+    "es": "Tibo, últimos 7 días: sin pistas nuevas desde el reset del 25 de oct. El número de arriba es solo historial."
+  },
+  "wait_comparison": {
+    "sample": 8,
+    "wait_days": 0.6,
+    "shorter_share": 0,
+    "median_days": 2.2,
+    "mean_days": 2.3,
+    "longest_days": 4,
+    "position": "earlier_than_most",
+    "basis": "recent_completed_intervals",
+    "window_intervals": 8,
+    "sample_end_at": "2026-10-25T06:10:01.000Z"
+  },
+  "wait_copy": {
+    "en": "You have waited 0.6 days; 0% of the latest 8 completed reset intervals were shorter. Typical wait 2.2 days, average 2.3, longest 4. Recent history, not a schedule. This historical baseline uses up to 8 completed intervals. Ordinary posts and hints are not extra probability factors. Sample through 2026-10-25 06:10:01 UTC.",
+    "zh": "你已等了 0.6 天；最近 8 个完整重置间隔中，0% 短于当前等待。典型间隔 2.2 天，平均 2.3 天，最长 4 天。这是近期历史，不是倒计时。历史基准概率使用最近最多 8 个完整间隔，普通推文和暗示未作为额外概率因子。样本截至 2026-10-25 06:10:01 UTC。",
+    "ja": "待ち始めて 0.6 日。直近 8 件の完了したリセット間隔の 0% は、現在の待ち時間より短いものでした。典型 2.2 日、平均 2.3 日、最長 4 日。直近の記録であり、予定表ではありません。履歴ベースの確率には直近最大 8 件の完了した間隔を使います。通常の投稿や示唆は追加の確率要因に含めません。サンプルは 2026-10-25 06:10:01 UTC 時点。",
+    "es": "Llevas 0,6 días esperando; el 0 % de los últimos 8 intervalos completos entre reinicios fueron más cortos. Espera típica 2,2 días, media 2,3, la más larga 4. Es historia reciente, no un calendario. Esta probabilidad histórica base usa hasta 8 intervalos completos recientes. Los mensajes habituales y las insinuaciones no son factores adicionales de probabilidad. Muestra hasta el 2026-10-25 06:10:01 UTC."
+  },
+  "wait_token": {
+    "en": "wait 0.6d · last 8: 0% shorter",
+    "zh": "已等 0.6 天 · 近8次 0%更短",
+    "ja": "待ち0.6日 · 直近8件 0%が短い",
+    "es": "espera 0,6 d · últ. 8: 0% más cortas"
+  },
+  "model_token": null,
+  "range_aria": {
+    "en": {
+      "h24": "Reset chance in the next 24 hours: 44%, range 25–66%",
+      "h48": "Reset chance by 48 hours: 69%, range 46–85%"
+    },
+    "zh": {
+      "h24": "未来 24 小时重置概率：44%，区间 25–66%",
+      "h48": "48 小时内重置概率：69%，区间 46–85%"
+    },
+    "ja": {
+      "h24": "今後 24 時間のリセット確率：44%、範囲 25–66%",
+      "h48": "48 時間以内のリセット確率：69%、範囲 46–85%"
+    },
+    "es": {
+      "h24": "Probabilidad de reset en las próximas 24 horas: 44 %, rango 25–66 %",
+      "h48": "Probabilidad de reset en 48 horas: 69 %, rango 46–85 %"
+    }
+  },
+  "milestone_watch": null,
+  "evidence": [
+    {
+      "code": "recent_cadence",
+      "params": {
+        "recent_median_days": 2.4,
+        "recent_sample": 5,
+        "weighted_mean_days": 4.2
+      },
+      "label": "Recent cadence",
+      "detail": "a reset every ~2.4d across the last 5 (weighted mean 4.2d)",
+      "href": "/timeline"
+    },
+    {
+      "code": "last_reset",
+      "params": {
+        "date": "2026-10-25",
+        "age_days": 0.6
+      },
+      "label": "Last reset",
+      "detail": "2026-10-25 (0.6d ago)",
+      "href": "https://x.com/thsottiaux/status/2114200291319124163"
+    },
+    {
+      "code": "common_window",
+      "params": {
+        "window_label": "4 AM - 7 AM",
+        "timezone": "UTC"
+      },
+      "label": "Most common window",
+      "detail": "4 AM - 7 AM in UTC",
+      "href": "/timeline"
+    }
+  ],
+  "model": {
+    "version": "rate-v3",
+    "window_intervals": 8,
+    "half_life_days": 60,
+    "effective_sample_size": 35,
+    "base_daily_rate": 0.445
+  },
+  "backtest": {
+    "sample_size": 366,
+    "brier": 0.129,
+    "baseline_brier": 0.132,
+    "rate_v2_brier": 0.128,
+    "better_than_naive": true,
+    "better_than_rate_v2": false,
+    "status": "experimental"
+  },
+  "signal_tier": null,
+  "alert_event_id": null,
+  "latest_alert": {
+    "id": "2114200291319124163",
+    "kind": "reset",
+    "state": "confirmed",
+    "source_at": "2026-10-25T06:10:01.000Z",
+    "summary": "Reset observed by operator; awaiting Tibo's confirmation.",
+    "url": "https://x.com/thsottiaux/status/2114200291319124163",
+    "score": null,
+    "window": null,
+    "corrected": true,
+    "confirmation_source": "operator_observed",
+    "observed_at": "2026-10-25T06:10:01.000Z",
+    "observation_message": "Codex reset confirmed\nOur checks show that Codex usage limits reset around 06:10 UTC on Oct 25.\nTibo hasn’t posted a confirmation yet. We may update this message when he does.",
+    "confirmed_at": null,
+    "confirmation_url": null
+  }
+}

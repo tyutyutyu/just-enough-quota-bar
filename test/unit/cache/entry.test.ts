@@ -18,7 +18,7 @@ const FULL: QuotaSnapshot = {
   fiveHour: { usedPercent: 42, resetsAt: 1000 },
   week: { usedPercent: 67, resetsAt: 2000 },
   banked: { count: 2, nextExpiresAt: 3000 },
-  announced: { next: 4000, kind: "announced", last: 500, p24: 12, p48: 60 },
+  announced: { next: 4000, kind: "announced", last: 500, p24: 12, p48: 60, estimate: 4500 },
   fetchedAt: 900,
   stale: false,
   error: null,
@@ -55,7 +55,14 @@ describe("sanitizeSnapshot", () => {
       announced: { next: Infinity, kind: "secret", last: null, p24: 1, p48: 2 },
     });
     expect(snapshot?.fiveHour).toEqual({ usedPercent: null, resetsAt: null });
-    expect(snapshot?.announced).toEqual({ next: null, kind: null, last: null, p24: 1, p48: 2 });
+    expect(snapshot?.announced).toEqual({
+      next: null,
+      kind: null,
+      last: null,
+      p24: 1,
+      p48: 2,
+      estimate: null,
+    });
     expect(snapshot?.fetchedAt).toBeNull();
     expect(snapshot?.stale).toBe(false);
   });

@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { buildErrorTooltip, buildTooltip, type TooltipInput } from "../../../src/statusbar/tooltip";
+import {
+  buildErrorTooltip,
+  buildTooltip,
+  tooltipMarkdown,
+  type TooltipInput,
+} from "../../../src/statusbar/tooltip";
 
 const NOW = 10_000_000;
 const MINUTE = 60_000;
@@ -9,7 +14,6 @@ const base: TooltipInput = {
   sourceLabel: "OAuth usage",
   snapshot: { name: "Claude", fetchedAt: NOW - 3 * MINUTE },
   errorCode: null,
-  attribution: null,
   nowMs: NOW,
 };
 
@@ -67,10 +71,25 @@ describe("buildTooltip", () => {
     ]);
   });
 
-  it("ends with the attribution when there is one", () => {
-    const text = buildTooltip({ ...base, attribution: "Data: codex-reset.com" });
+});
 
-    expect(text.split("\n").at(-1)).toBe("Data: codex-reset.com");
+describe("tooltipMarkdown", () => {
+  const credit = { text: "Data: codex-reset.com", url: "https://codex-reset.com/" };
+
+  it("ends with the credit linked to the source", () => {
+    const markdown = tooltipMarkdown("Codex · app-server\nLast update: 3m ago", credit);
+
+    expect(markdown.split("  \n")).toEqual([
+      "Codex · app\\-server",
+      "Last update: 3m ago",
+      "[Data: codex\\-reset\\.com](https://codex-reset.com/)",
+    ]);
+  });
+
+  it("escapes the text so that an error code is not read as Markdown", () => {
+    const markdown = tooltipMarkdown("Stale: upstream_429 [x](y) *z*", credit);
+
+    expect(markdown.split("  \n")[0]).toBe("Stale: upstream\\_429 \\[x\\]\\(y\\) \\*z\\*");
   });
 });
 

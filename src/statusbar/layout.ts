@@ -1,7 +1,7 @@
 import { PROVIDER_NAMES, qualify, type ProviderId } from "../constants";
 import { parseFormat, type Token } from "../format/parser";
 import { render, type Segment } from "../format/render";
-import type { QuotaSnapshot } from "../model";
+import type { AnnouncedReset, QuotaSnapshot } from "../model";
 import { colorFor, type ColorContext } from "../thresholds/evaluate";
 import {
   mergeThresholds,
@@ -10,14 +10,19 @@ import {
   type ThresholdMap,
 } from "../thresholds/parse";
 import { parseColor, type ThresholdBackground, type ThresholdStyle } from "../thresholds/style";
+import { resolveAnnounced } from "./announced";
 import { applyElapsedResets } from "./elapsed";
 import type { Alignment, ProviderSettings, Settings } from "./settings";
+import type { Attribution } from "./source";
 import { buildErrorTooltip, buildTooltip } from "./tooltip";
 
 /** What one `StatusBarItem` must show. */
 export interface ItemSpec {
   readonly text: string;
+  /** Plain text. */
   readonly tooltip: string;
+  /** Credit of the announced-reset provider, shown as a link below the tooltip text. */
+  readonly attribution: Attribution | null;
   /** Theme color ID or `#rrggbb`; `null` keeps the default foreground. */
   readonly color: string | null;
   readonly background: ThresholdBackground | null;
@@ -27,7 +32,13 @@ export interface ItemSpec {
 
 export interface SourceInfo {
   readonly label: string;
-  readonly announcedAttribution: string | null;
+}
+
+/** The announced-reset provider selected for the provider. */
+export interface AnnouncedInput {
+  readonly attribution: Attribution;
+  /** Its last successful answer; `null` when it has none or its last fetch failed. */
+  readonly values: AnnouncedReset | null;
 }
 
 export interface LayoutInput {
@@ -38,6 +49,8 @@ export interface LayoutInput {
   /** The cache entry of the provider's source, if any. */
   readonly snapshot: QuotaSnapshot | null;
   readonly errorCode: string | null;
+  /** `null` or absent when no announced-reset provider is selected. */
+  readonly announced?: AnnouncedInput | null;
   readonly nowMs: number;
 }
 
@@ -73,7 +86,12 @@ export function layoutProvider(input: LayoutInput): readonly ItemSpec[] {
     return [errorItem(name, problems, alignment, providerSettings)];
   }
 
-  const snapshot = applyElapsedResets(input.snapshot ?? { name }, input.nowMs);
+  const announced = input.announced ?? null;
+  const showsAnnounced = usesAnnounced(parsedFormat.tokens);
+  const snapshot = applyElapsedResets(
+    withAnnounced(input.snapshot ?? { name }, announced, settings.shared.includeEstimates, input.nowMs),
+    input.nowMs,
+  );
   const context: ColorContext = {
     nowMs: input.nowMs,
     stale: snapshot.stale === true,
@@ -85,15 +103,16 @@ export function layoutProvider(input: LayoutInput): readonly ItemSpec[] {
     sourceLabel: input.source?.label ?? null,
     snapshot: input.snapshot === null ? null : snapshot,
     errorCode: input.errorCode,
-    attribution: usesAnnounced(parsedFormat.tokens) ? (input.source?.announcedAttribution ?? null) : null,
     nowMs: input.nowMs,
   });
+  const attribution = showsAnnounced ? (announced?.attribution ?? null) : null;
 
   return groupSegments(segments, (segment) =>
     colorFor(segment.variable, snapshot, thresholds.thresholds, context),
   ).map((group, index) => ({
     text: group.text,
     tooltip,
+    attribution,
     color: group.style?.color ?? null,
     background: group.style?.background ?? null,
     alignment,
@@ -135,6 +154,7 @@ function errorItem(
   return {
     text: `${ERROR_TEXT_ICON} ${name}`,
     tooltip: buildErrorTooltip(name, problems),
+    attribution: null,
     color: null,
     background: "error",
     alignment,
@@ -144,6 +164,29 @@ function errorItem(
 
 function usesAnnounced(tokens: readonly Token[]): boolean {
   return tokens.some((token) => token.type === "field" && token.variable.startsWith("announced."));
+}
+
+/** Whether `format` is valid and shows an `announced.*` variable, so its provider is worth asking. */
+export function formatUsesAnnounced(format: string): boolean {
+  const parsed = parseFormat(format);
+  return parsed.ok && usesAnnounced(parsed.tokens);
+}
+
+/**
+ * The quota snapshot with the announced provider's values. Without a usable
+ * answer the `announced.*` variables are missing, and nothing else changes.
+ */
+function withAnnounced(
+  snapshot: QuotaSnapshot,
+  announced: AnnouncedInput | null,
+  includeEstimates: boolean,
+  nowMs: number,
+): QuotaSnapshot {
+  const values = announced?.values ?? null;
+  return {
+    ...snapshot,
+    announced: values === null ? undefined : resolveAnnounced(values, includeEstimates, nowMs),
+  };
 }
 
 interface Group {

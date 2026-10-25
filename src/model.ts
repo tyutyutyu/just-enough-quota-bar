@@ -27,6 +27,11 @@ export interface AnnouncedReset {
   readonly p24: number | null;
   /** Probability of a reset within 48 hours, 0-100. */
   readonly p48: number | null;
+  /**
+   * Start of the UTC day the tracker estimates for the next reset. It is shown
+   * as `next` only when estimates are enabled and nothing is announced.
+   */
+  readonly estimate?: number | null;
 }
 
 export interface QuotaSnapshot {

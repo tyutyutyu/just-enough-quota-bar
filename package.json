@@ -58,6 +58,11 @@
           "default": "–",
           "markdownDescription": "Text shown instead of a variable whose value is not available."
         },
+        "jeqb.announced.includeEstimates": {
+          "type": "boolean",
+          "default": false,
+          "markdownDescription": "When nothing is announced, show whenreset's estimate of the next reset as `announced.next`, with `announced.kind` set to `estimate`. The estimate is the last reset plus the typical gap, a fixed day that never moves forward; once that day is over, the value is missing."
+        },
         "jeqb.claude.enabled": {
           "type": "boolean",
           "default": true,
@@ -73,6 +78,19 @@
           "default": 200,
           "markdownDescription": "Priority of the first Claude item; every further item of the format gets one less, so the order of the format is kept. A higher priority is placed further left."
         },
+        "jeqb.claude.announcedSource": {
+          "type": "string",
+          "enum": [
+            "whenreset",
+            "off"
+          ],
+          "default": "whenreset",
+          "enumDescriptions": [
+            "whenreset.app, a community tracker of the announced resets. Credited and linked in the tooltip.",
+            "No announced reset: the `announced.*` variables stay empty and nothing is fetched."
+          ],
+          "markdownDescription": "Where the `announced.*` variables of Claude come from: a community tracker of the global resets the vendor announces, a third party with its own terms. It is only asked while `#jeqb.claude.format#` uses an `announced.*` variable, then every 30 minutes and at most every 5, with an identifying `User-Agent`. When the tracker fails, only the `announced.*` variables are missing."
+        },
         "jeqb.codex.enabled": {
           "type": "boolean",
           "default": true,
@@ -87,6 +105,21 @@
           "type": "integer",
           "default": 100,
           "markdownDescription": "Priority of the first Codex item; every further item of the format gets one less, so the order of the format is kept. A higher priority is placed further left."
+        },
+        "jeqb.codex.announcedSource": {
+          "type": "string",
+          "enum": [
+            "whenreset",
+            "codexReset",
+            "off"
+          ],
+          "default": "whenreset",
+          "enumDescriptions": [
+            "whenreset.app, a community tracker of the announced resets. Credited and linked in the tooltip.",
+            "codex-reset.com, which covers Codex only and gives no announced time, just `announced.p24`, `announced.p48` and `announced.last`. Credited and linked in the tooltip, as its terms require.",
+            "No announced reset: the `announced.*` variables stay empty and nothing is fetched."
+          ],
+          "markdownDescription": "Where the `announced.*` variables of Codex come from: a community tracker of the global resets the vendor announces, a third party with its own terms. It is only asked while `#jeqb.codex.format#` uses an `announced.*` variable, then every 30 minutes and at most every 5 (whenreset) or every minute (codex-reset), with an identifying `User-Agent`. When the tracker fails, only the `announced.*` variables are missing."
         },
         "jeqb.thresholds": {
           "type": "object",

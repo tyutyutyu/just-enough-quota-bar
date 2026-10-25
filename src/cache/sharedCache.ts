@@ -26,6 +26,11 @@ export interface SourceDefinition {
   readonly intervalMs: number;
   /** One fetch is abandoned after this; a lock older than twice this is stale. */
   readonly timeoutMs: number;
+  /**
+   * No attempt follows a failed one sooner than this, whatever the backoff
+   * says; a longer `Retry-After` still wins.
+   */
+  readonly minRetryMs?: number;
 }
 
 export type FetchResult =
@@ -117,7 +122,8 @@ function failureEntry(
     snapshot: kept && { ...kept, stale: true, error },
     error,
     failures,
-    nextAttemptAt: nowMs + retryDelayMs(failures, failure.retryAfterMs ?? null),
+    nextAttemptAt:
+      nowMs + Math.max(retryDelayMs(failures, failure.retryAfterMs ?? null), source.minRetryMs ?? 0),
   };
 }
 

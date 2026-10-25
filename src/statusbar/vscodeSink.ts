@@ -3,6 +3,7 @@ import { COMMAND_REFRESH, PROVIDER_NAMES, type ProviderId } from "../constants";
 import type { ThresholdBackground } from "../thresholds/style";
 import type { StatusBarSink } from "./controller";
 import type { ItemSpec } from "./layout";
+import { tooltipMarkdown } from "./tooltip";
 
 const BACKGROUND_COLORS: Readonly<Record<ThresholdBackground, string>> = {
   warning: "statusBarItem.warningBackground",
@@ -72,7 +73,7 @@ export class VscodeStatusBarSink implements StatusBarSink {
         background: colorId(item.backgroundColor),
         alignment: item.alignment === vscode.StatusBarAlignment.Left ? "left" : "right",
         priority: item.priority ?? 0,
-        tooltip: typeof item.tooltip === "string" ? item.tooltip : "",
+        tooltip: typeof item.tooltip === "string" ? item.tooltip : (item.tooltip?.value ?? ""),
       })),
     );
   }
@@ -97,7 +98,10 @@ export class VscodeStatusBarSink implements StatusBarSink {
 
   private apply(item: vscode.StatusBarItem, provider: ProviderId, spec: ItemSpec): void {
     item.text = spec.text;
-    item.tooltip = spec.tooltip;
+    item.tooltip =
+      spec.attribution === null
+        ? spec.tooltip
+        : new vscode.MarkdownString(tooltipMarkdown(spec.tooltip, spec.attribution));
     item.color = toForeground(spec.color);
     item.backgroundColor =
       spec.background === null ? undefined : new vscode.ThemeColor(BACKGROUND_COLORS[spec.background]);

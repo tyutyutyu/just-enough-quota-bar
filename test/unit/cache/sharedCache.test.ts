@@ -212,6 +212,26 @@ describe("SharedCache failures", () => {
     expect(await cache.refresh(SOURCE, counting(failing("upstream_429")).fetcher)).toBe("backoff");
   });
 
+  it("waits at least the source's minimum retry delay after a failure", async () => {
+    const floored: SourceDefinition = { ...SOURCE, minRetryMs: 5 * MINUTE };
+    const { fetcher, calls } = counting(failing("upstream_503"));
+    await cache.refresh(floored, fetcher);
+
+    expect((await cache.read()).entries.claude?.nextAttemptAt).toBe(clock + 5 * MINUTE);
+    clock += 5 * MINUTE - 1;
+    expect(await cache.refresh(floored, fetcher)).toBe("backoff");
+    clock += 1;
+    expect(await cache.refresh(floored, fetcher)).toBe("failed");
+    expect(calls()).toBe(2);
+  });
+
+  it("lets a Retry-After longer than the minimum retry delay win", async () => {
+    const floored: SourceDefinition = { ...SOURCE, minRetryMs: 5 * MINUTE };
+    await cache.refresh(floored, counting(failing("upstream_429", 10 * MINUTE)).fetcher);
+
+    expect((await cache.read()).entries.claude?.nextAttemptAt).toBe(clock + 10 * MINUTE);
+  });
+
   it("recovers on success and clears the error", async () => {
     await seeded();
     await cache.refresh(SOURCE, counting(failing("upstream_500")).fetcher);
