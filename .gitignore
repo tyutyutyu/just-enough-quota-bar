@@ -263,3 +263,6 @@ tmbootpicker.efi
 
 # Project-specific
 # autoharness hook runtime state (session locks, offsets, run logs)
+
+# Task
+.task/
