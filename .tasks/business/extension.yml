@@ -1,0 +1,30 @@
+---
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: "3"
+
+tasks:
+  install:
+    desc: Package the extension and install it into VS Code (CODE_CLI=code-insiders for Insiders)
+    vars:
+      CODE_CLI: '{{.CODE_CLI | default "code"}}'
+    requires:
+      vars:
+        - name: CODE_CLI
+          enum: [code, code-insiders]
+    preconditions:
+      - sh: command -v {{.CODE_CLI}}
+        msg: "{{.CODE_CLI}} is not on PATH"
+    cmds:
+      - task: dependencies
+      - task: :dev:package
+      - "{{.CODE_CLI}} --install-extension just-enough-quota-bar.vsix --force"
+
+  dependencies:
+    internal: true
+    method: timestamp
+    sources:
+      - package-lock.json
+    generates:
+      - node_modules/.package-lock.json
+    cmds:
+      - task: :dev:install

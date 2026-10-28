@@ -307,7 +307,7 @@ task verify
 - `src/statusbar`: settings, layout into status bar items, tooltip and the controller.
 - `test/unit` (Vitest) and `test/integration` (VS Code extension host).
 
-Run `npm run build`, then start an Extension Development Host with `code --extensionDevelopmentPath=.`. The design and its decisions live in the project's Backlog document *Just Enough Quota Bar – terv és specifikáció* (`doc-1`).
+Run `npm run build`, then start an Extension Development Host with `code --extensionDevelopmentPath=.`. `task extension:install` packages the extension and installs the `.vsix` into VS Code; `task extension:install CODE_CLI=code-insiders` installs it into VS Code Insiders. The design and its decisions live in the project's Backlog document *Just Enough Quota Bar – terv és specifikáció* (`doc-1`).
 
 ### Release
 
