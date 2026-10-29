@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MAX_RETRY_AFTER_MS } from "../../../../src/cache/backoff";
 import {
   PROJECT_URL,
   announcedUserAgent,
@@ -41,6 +42,18 @@ describe("getJson", () => {
       ok: false,
       error: "upstream_429",
       retryAfterMs: 30_000,
+    });
+  });
+
+  it("caps a Retry-After from the tracker at 24 hours", async () => {
+    const { fetchImpl } = fakeFetch({
+      [URL]: { status: 429, headers: { "retry-after": "Thu, 01 Jan 2099 00:00:00 GMT" } },
+    });
+
+    expect(await getJson(URL, options(fetchImpl))).toEqual({
+      ok: false,
+      error: "upstream_429",
+      retryAfterMs: MAX_RETRY_AFTER_MS,
     });
   });
 

@@ -203,7 +203,7 @@ Rules:
 - **Click** a quota item, or run **Just Enough Quota Bar: Refresh quota** (`jeqb.refresh`), to ask for fresh data now. The minimum interval of the source still applies (Claude 1 minute, Codex app-server 30 seconds, probe 10 minutes).
 - **Hover** shows the provider and its source (`OAuth usage`, `app-server` or `probe`), the time of the last update, the stale state or the error code, and the credit of the announced-reset tracker.
 - The relative times are redrawn every 30 seconds without a request. When a window's reset time passes, it reads `0%` and counts as stale until the next successful refresh.
-- After a failed refresh the last data stays, marked stale, and the next attempt backs off exponentially up to 30 minutes; a `Retry-After` header of a `429` answer is respected.
+- After a failed refresh the last data stays, marked stale, and the next attempt backs off exponentially up to 30 minutes; a `Retry-After` header of a `429` answer is respected, up to 24 hours.
 
 ## Privacy and security
 
@@ -256,7 +256,7 @@ The tooltip of a provider shows its state: `Stale: <code>` while old data is sho
 The values are drawn in `jeqb.staleColor` and the tooltip says `Stale` with the error code of the last attempt. Usual causes:
 
 - `network_error` or `timeout`: no connection, a proxy or a slow answer. It recovers by itself.
-- `upstream_429`: rate limited; the next attempt waits for `Retry-After` or the backoff (at most 30 minutes).
+- `upstream_429`: rate limited; the next attempt waits for `Retry-After` (at most 24 hours) or the backoff (at most 30 minutes).
 - `upstream_401` or `upstream_403`: the token was rejected; log in again in Claude Code or Codex.
 - `invalid_usage_response`, `invalid_rate_limits_response`, `invalid_quota_headers`, `invalid_announced_response`: the answer had an unexpected format, likely because an undocumented endpoint changed. Please [open an issue](https://github.com/tyutyutyu/just-enough-quota-bar/issues).
 - `Stale` without a code: a window's reset time has passed since the last refresh, so it shows `0%` until the next one.

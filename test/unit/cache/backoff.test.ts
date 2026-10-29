@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   BACKOFF_BASE_MS,
   BACKOFF_MAX_MS,
+  MAX_RETRY_AFTER_MS,
   parseRetryAfter,
   retryDelayMs,
 } from "../../../src/cache/backoff";
@@ -68,5 +69,30 @@ describe("parseRetryAfter", () => {
     expect(parseRetryAfter(undefined, now)).toBeNull();
     expect(parseRetryAfter("  ", now)).toBeNull();
     expect(parseRetryAfter("soon", now)).toBeNull();
+  });
+
+  it("caps the wait at 24 hours", () => {
+    expect(MAX_RETRY_AFTER_MS).toBe(24 * 60 * 60_000);
+  });
+
+  it("caps delta-seconds longer than 24 hours", () => {
+    expect(parseRetryAfter("86401", now)).toBe(MAX_RETRY_AFTER_MS);
+    expect(parseRetryAfter("999999999", now)).toBe(MAX_RETRY_AFTER_MS);
+  });
+
+  it("caps an HTTP date further than 24 hours away", () => {
+    expect(parseRetryAfter("Tue, 13 Oct 2026 10:00:01 GMT", now)).toBe(MAX_RETRY_AFTER_MS);
+    expect(parseRetryAfter("Thu, 01 Jan 2099 00:00:00 GMT", now)).toBe(MAX_RETRY_AFTER_MS);
+  });
+
+  it("keeps a wait of exactly 24 hours", () => {
+    expect(parseRetryAfter("86400", now)).toBe(MAX_RETRY_AFTER_MS);
+    expect(parseRetryAfter("Tue, 13 Oct 2026 10:00:00 GMT", now)).toBe(MAX_RETRY_AFTER_MS);
+  });
+
+  it("caps delta-seconds that overflow to Infinity", () => {
+    const digits = "9".repeat(400);
+    expect(Number(digits)).toBe(Number.POSITIVE_INFINITY);
+    expect(parseRetryAfter(digits, now)).toBe(MAX_RETRY_AFTER_MS);
   });
 });

@@ -8,10 +8,18 @@ export const BACKOFF_BASE_MS = MINUTE;
 export const BACKOFF_MAX_MS = 30 * MINUTE;
 
 /**
+ * Upper bound of a server `Retry-After`. A malformed or hostile answer must not
+ * silence a source for longer than a day; it is retried once a day at most.
+ */
+export const MAX_RETRY_AFTER_MS = 24 * 60 * MINUTE;
+
+/**
  * Delay before the next attempt after `failures` consecutive failures.
  *
- * The exponential backoff is capped at 30 minutes. A `Retry-After` from the
- * server is always honored, so it may lift the delay above that cap.
+ * The exponential backoff is capped at 30 minutes. A `retryAfterMs` is always
+ * honored, so it may lift the delay above that cap. A server `Retry-After` is
+ * already capped at {@link MAX_RETRY_AFTER_MS} by {@link parseRetryAfter}; a
+ * wait from the user's own settings is not capped here.
  */
 export function retryDelayMs(failures: number, retryAfterMs: number | null = null): number {
   const exponent = Math.max(failures - 1, 0);
@@ -26,7 +34,8 @@ const DELTA_SECONDS = /^\d+$/;
 
 /**
  * Parses a `Retry-After` header: delta-seconds or an HTTP date.
- * Returns the wait in ms, or `null` when the header is absent or malformed.
+ * Returns the wait in ms, at most {@link MAX_RETRY_AFTER_MS}, or `null` when
+ * the header is absent or malformed.
  */
 export function parseRetryAfter(header: string | null | undefined, nowMs: number): number | null {
   const value = header?.trim();
@@ -34,8 +43,8 @@ export function parseRetryAfter(header: string | null | undefined, nowMs: number
     return null;
   }
   if (DELTA_SECONDS.test(value)) {
-    return Number(value) * SECOND;
+    return Math.min(Number(value) * SECOND, MAX_RETRY_AFTER_MS);
   }
   const date = Date.parse(value);
-  return Number.isNaN(date) ? null : Math.max(date - nowMs, 0);
+  return Number.isNaN(date) ? null : Math.min(Math.max(date - nowMs, 0), MAX_RETRY_AFTER_MS);
 }

@@ -1,5 +1,5 @@
 import { spawn, type ChildProcess } from "node:child_process";
-import { chmod, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
+import { access, chmod, mkdir, mkdtemp, readFile, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
@@ -65,6 +65,20 @@ async function expectProcessGone(pidFile: string): Promise<void> {
     await new Promise((done) => setTimeout(done, 25));
   }
   expect(isAlive(pid)).toBe(false);
+}
+
+/**
+ * Aborts the query a while after the fake server has written its pid, so a slow
+ * start on a busy machine does not end the server before the test can find it.
+ */
+function abortAfterStart(pidFile: string, controller: AbortController, delayMs = 400): void {
+  const poll = (): void => {
+    access(pidFile).then(
+      () => setTimeout(() => controller.abort(), delayMs),
+      () => setTimeout(poll, 25),
+    );
+  };
+  poll();
 }
 
 /** The platform is pinned, so a Windows host does not route the stop through the fake spawn as `taskkill`. */
@@ -149,7 +163,7 @@ createInterface({ input: process.stdin }).on("line", (line) => {
   it("times out on a slow server and leaves no process behind", async () => {
     const run = fakeServer("slow");
     const controller = new AbortController();
-    setTimeout(() => controller.abort(), 400);
+    abortAfterStart(run.pidFile, controller);
 
     const outcome = await query(run, controller.signal);
 
@@ -160,7 +174,7 @@ createInterface({ input: process.stdin }).on("line", (line) => {
   it("kills a server that ignores the polite stop", async () => {
     const run = fakeServer("stubborn");
     const controller = new AbortController();
-    setTimeout(() => controller.abort(), 400);
+    abortAfterStart(run.pidFile, controller);
 
     const outcome = await query(run, controller.signal);
 
@@ -232,7 +246,7 @@ createInterface({ input: process.stdin }).on("line", (line) => {
       return server;
     };
     const controller = new AbortController();
-    setTimeout(() => controller.abort(), 400);
+    abortAfterStart(run.pidFile, controller);
 
     const outcome = await queryRateLimits({
       command: "C:\\npm\\codex.cmd",
@@ -312,7 +326,7 @@ createInterface({ input: process.stdin }).on("line", (line) => {
       return server;
     };
     const controller = new AbortController();
-    setTimeout(() => controller.abort(), 400);
+    abortAfterStart(run.pidFile, controller);
 
     await queryRateLimits({
       command: "C:\\npm\\codex.exe",
