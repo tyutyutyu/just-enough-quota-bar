@@ -14,6 +14,12 @@
       "description": "@types/vscode must not be newer than the engines.vscode minimum, so raise them together by hand",
       "matchDepNames": ["@types/vscode"],
       "enabled": false
+    },
+    {
+      "description": "The extension runs on the Node.js bundled with VS Code (see .nvmrc in microsoft/vscode at the engines.vscode release): raise the Node major in CI and @types/node by hand together with engines.vscode",
+      "matchDepNames": ["node", "@types/node"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
     }
   ]
 }
