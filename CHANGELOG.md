@@ -2,6 +2,12 @@
 
 All notable changes of Just Enough Quota Bar are listed here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Security
+
+- A server `Retry-After` is honored for at most 24 hours, so a malformed or hostile answer can no longer silence a source for longer than a day.
+
 ## [0.0.1]
 
 The first release on the Visual Studio Marketplace and Open VSX.
@@ -18,4 +24,5 @@ The first release on the Visual Studio Marketplace and Open VSX.
 - Machine-wide shared cache with a lock per source, so several VS Code windows share one refresh; stale data and backoff after failures.
 - **Just Enough Quota Bar: Refresh quota** command, also on click.
 
+[Unreleased]: https://github.com/tyutyutyu/just-enough-quota-bar/compare/v0.0.1...HEAD
 [0.0.1]: https://github.com/tyutyutyu/just-enough-quota-bar/releases/tag/v0.0.1

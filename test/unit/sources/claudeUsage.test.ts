@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { MAX_RETRY_AFTER_MS } from "../../../src/cache/backoff";
 import {
   CLAUDE_USAGE_URL,
   MAX_RESET_CREDITS,
@@ -286,6 +287,12 @@ describe("fetchUsage", () => {
     const { result } = run([respond(429, {}, { "Retry-After": "90" })]);
 
     expect(await result).toEqual({ ok: false, error: "upstream_429", retryAfterMs: 90_000 });
+  });
+
+  it("caps a huge Retry-After of a 429 at 24 hours", async () => {
+    const { result } = run([respond(429, {}, { "Retry-After": "999999999" })]);
+
+    expect(await result).toEqual({ ok: false, error: "upstream_429", retryAfterMs: MAX_RETRY_AFTER_MS });
   });
 
   it("returns invalid_usage_response for a body that is not JSON or not a usage", async () => {
