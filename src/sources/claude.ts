@@ -20,11 +20,17 @@ export const CLAUDE_MIN_INTERVAL_MS = MINUTE_MS;
 export const CLAUDE_TIMEOUT_MS = 20 * SECOND_MS;
 export const SECURITY_TIMEOUT_MS = 5 * SECOND_MS;
 const SECURITY_MAX_BUFFER = 64 * 1024;
+/**
+ * Fixed location of the macOS `security` tool on the SIP-protected system
+ * volume. The system's own tool runs, never the first `security` on `PATH`.
+ */
+export const SECURITY_TOOL_PATH = "/usr/bin/security";
 
 type ExecFile = typeof execFile;
 
 /**
- * Runs the macOS `security` tool without a shell. A failure, including the
+ * Runs the macOS `security` tool from {@link SECURITY_TOOL_PATH}, without a
+ * shell and independently of `PATH`. A failure, including the
  * timeout whose error would carry the output, is reduced to `null`; neither
  * the error nor stderr is ever kept or logged.
  */
@@ -35,7 +41,7 @@ export function createSecurityRunner(
     new Promise((resolve) => {
       try {
         exec(
-          "security",
+          SECURITY_TOOL_PATH,
           [...args],
           { timeout: SECURITY_TIMEOUT_MS, maxBuffer: SECURITY_MAX_BUFFER, encoding: "utf8" },
           (error, stdout) => resolve(error === null ? stdout : null),

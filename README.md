@@ -49,7 +49,7 @@ The extension always runs on your local machine (`extensionKind: ui`), also in R
 
 The extension reads the OAuth token of Claude Code and asks the Claude usage endpoint, `GET https://api.anthropic.com/api/oauth/usage`, every 5 minutes.
 
-- Token: `$CLAUDE_CONFIG_DIR/.credentials.json`, otherwise `~/.claude/.credentials.json`. On macOS also the Keychain item `Claude Code-credentials` (with a suffix when `CLAUDE_CONFIG_DIR` points elsewhere), read with the `security` tool; a valid Keychain token wins over the file.
+- Token: `$CLAUDE_CONFIG_DIR/.credentials.json`, otherwise `~/.claude/.credentials.json`. On macOS also the Keychain item `Claude Code-credentials` (with a suffix when `CLAUDE_CONFIG_DIR` points elsewhere), read with the system tool `/usr/bin/security` (by absolute path, never looked up on `PATH`); a valid Keychain token wins over the file.
 - The token is only read. When it has expired, no request is sent: the extension keeps showing the last data as stale until Claude Code refreshes the token (see [`auth_expired`](#auth_expired)).
 - The banked resets come from the `cedar_ember` block of the same answer. When the endpoint refuses that block, it is asked once more without it and the `banked.*` variables stay empty.
 
@@ -223,7 +223,7 @@ With the Codex app-server (the default when `codex` is installed), the extension
 ### What the extension reads locally
 
 - `$CLAUDE_CONFIG_DIR/.credentials.json` or `~/.claude/.credentials.json`: the Claude Code access token and its expiry.
-- macOS: the Keychain item of Claude Code (`Claude Code-credentials…`), through `security find-generic-password`.
+- macOS: the Keychain item of Claude Code (`Claude Code-credentials…`), through `/usr/bin/security find-generic-password`.
 - `$CODEX_HOME/auth.json` or `~/.codex/auth.json`: the Codex access token and account ID, **only for the probe**.
 - The `PATH` (or `jeqb.codex.binaryPath`) to find the `codex` binary, which it runs as `codex app-server`.
 - Its own settings and its cache.

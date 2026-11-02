@@ -7,6 +7,7 @@ All notable changes of Just Enough Quota Bar are listed here. The format follows
 ### Security
 
 - A server `Retry-After` is honored for at most 24 hours, so a malformed or hostile answer can no longer silence a source for longer than a day.
+- On macOS the Keychain is read with `/usr/bin/security` by absolute path, so a `security` binary planted earlier on `PATH` can no longer receive the Keychain query.
 
 ## [0.0.1]
 
