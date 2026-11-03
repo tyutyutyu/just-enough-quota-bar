@@ -25,7 +25,7 @@ export interface CredentialEnvironment {
   /** The text of a file, or `null` when it does not exist or cannot be read. */
   readFile(filePath: string): Promise<string | null>;
   /**
-   * Runs `security` with `args`, without a shell, and returns its stdout, or
+   * Runs `/usr/bin/security` with `args`, without a shell, and returns its stdout, or
    * `null` on any failure. It must never log or expose the failure: a timeout
    * error carries the output, which is the credential.
    */

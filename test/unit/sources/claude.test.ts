@@ -1,8 +1,9 @@
 import * as path from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CLAUDE_INTERVAL_MS,
   SECURITY_TIMEOUT_MS,
+  SECURITY_TOOL_PATH,
   createClaudeSource,
   createSecurityRunner,
   defaultCredentialEnvironment,
@@ -108,6 +109,10 @@ describe("defaultCredentialEnvironment", () => {
 });
 
 describe("createSecurityRunner", () => {
+  afterEach(() => {
+    vi.unstubAllEnvs();
+  });
+
   type Exec = Parameters<typeof createSecurityRunner>[0];
 
   function exec(behavior: (callback: (error: Error | null, stdout: string) => void) => void): {
@@ -129,10 +134,20 @@ describe("createSecurityRunner", () => {
 
     expect(output).toBe("output\n");
     expect(calls).toHaveLength(1);
-    expect(calls[0]?.file).toBe("security");
+    expect(calls[0]?.file).toBe(SECURITY_TOOL_PATH);
+    expect(calls[0]?.file).toBe("/usr/bin/security");
     expect(calls[0]?.args).toEqual(["find-generic-password", "-w"]);
     expect(calls[0]?.options).toMatchObject({ timeout: SECURITY_TIMEOUT_MS, encoding: "utf8" });
     expect(calls[0]?.options).not.toHaveProperty("shell");
+  });
+
+  it("runs the system security tool by absolute path, whatever PATH holds", async () => {
+    vi.stubEnv("PATH", "/tmp/attacker-controlled");
+    const { run, calls } = exec((callback) => callback(null, ""));
+
+    await createSecurityRunner(run)(["x"]);
+
+    expect(calls[0]?.file).toBe("/usr/bin/security");
   });
 
   it("returns null for a failure, whose error text may carry the credential", async () => {
