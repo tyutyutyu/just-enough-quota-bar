@@ -17,6 +17,7 @@ interface Property {
   readonly enum?: readonly unknown[];
   readonly description?: string;
   readonly markdownDescription?: string;
+  readonly scope?: string;
 }
 
 const manifest = JSON.parse(readFileSync(resolve(__dirname, "../../../package.json"), "utf8")) as {
@@ -68,5 +69,14 @@ describe("contributes.configuration", () => {
       expect(properties[`jeqb.${provider}.announcedSource`]?.enum).toEqual(ANNOUNCED_SOURCE_CHOICES[provider]);
     }
     expect(DEFAULT_ANNOUNCED_SOURCE).toBe("whenreset");
+  });
+
+  it.each([
+    "jeqb.codex.binaryPath",
+    "jeqb.codex.source",
+    "jeqb.claude.announcedSource",
+    "jeqb.codex.announcedSource",
+  ])("%s is a machine setting a workspace cannot override", (name) => {
+    expect(properties[name]?.scope).toBe("machine");
   });
 });

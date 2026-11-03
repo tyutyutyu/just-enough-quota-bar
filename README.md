@@ -188,13 +188,13 @@ Rules:
 | `jeqb.claude.format` | `C {5h.pct}% {5h.reset:rel} · W {week.pct}%` | Claude format string. |
 | `jeqb.claude.priority` | `200` | Priority of the first Claude item; higher is further left. |
 | `jeqb.claude.thresholds` | `{}` | Claude thresholds; each key replaces the same key of `jeqb.thresholds`. |
-| `jeqb.claude.announcedSource` | `whenreset` | `whenreset` or `off`. |
+| `jeqb.claude.announcedSource` | `whenreset` | `whenreset` or `off` (machine setting). |
 | `jeqb.codex.enabled` | `true` | Show the Codex quota. |
 | `jeqb.codex.format` | `X {5h.pct}% {5h.reset:rel} · W {week.pct}%` | Codex format string. |
 | `jeqb.codex.priority` | `100` | Priority of the first Codex item; higher is further left. |
 | `jeqb.codex.thresholds` | `{}` | Codex thresholds; each key replaces the same key of `jeqb.thresholds`. |
-| `jeqb.codex.announcedSource` | `whenreset` | `whenreset`, `codexReset` or `off`. |
-| `jeqb.codex.source` | `auto` | `auto`, `appServer` or `probe`; see [Codex](#codex). |
+| `jeqb.codex.announcedSource` | `whenreset` | `whenreset`, `codexReset` or `off` (machine setting). |
+| `jeqb.codex.source` | `auto` | `auto`, `appServer` or `probe` (machine setting); see [Codex](#codex). |
 | `jeqb.codex.binaryPath` | empty | Path of the `codex` executable (machine setting). Empty: the first `codex` (on Windows `codex.exe` or `codex.cmd`) on the `PATH`. |
 | `jeqb.codex.probeIntervalMinutes` | `10` | Minutes between two probe runs; never less than 10. |
 
@@ -219,6 +219,8 @@ Just Enough Quota Bar has **no telemetry** and no server of its own. It only rea
 | `codex-reset.com` | the Codex format uses an `announced.*` variable and the source is `codexReset` | `GET /api/forecast`. No token and no account data. |
 
 With the Codex app-server (the default when `codex` is installed), the extension sends nothing over the network for Codex: it runs the local `codex app-server`, and Codex makes the request with its own login.
+
+`jeqb.codex.source`, `jeqb.claude.announcedSource`, `jeqb.codex.announcedSource` and `jeqb.codex.binaryPath` are machine settings: they can only be set in the user or remote settings, and VS Code ignores them in the workspace or folder settings, so an opened repository cannot choose the quota-using probe, another tracker or another `codex` binary.
 
 ### What the extension reads locally
 
