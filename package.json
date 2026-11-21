@@ -391,7 +391,7 @@
     "@types/node": "24.19.2",
     "@types/vscode": "1.140.0",
     "@typescript/native": "npm:typescript@7.0.2",
-    "@vitest/coverage-v8": "5.1.0",
+    "@vitest/coverage-v8": "5.1.1",
     "@vscode/test-electron": "3.1.0",
     "@vscode/vsce": "4.1.1",
     "esbuild": "0.28.2",
@@ -400,6 +400,6 @@
     "ovsx": "1.4.0",
     "typescript": "npm:@typescript/typescript6@6.0.2",
     "typescript-eslint": "8.73.0",
-    "vitest": "5.1.0"
+    "vitest": "5.1.1"
   }
 }
